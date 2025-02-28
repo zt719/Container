@@ -56,6 +56,7 @@
 %format Λ = "\Lambda"
 %format η = "\eta"
 %format ω = "\omega"
+%format ε = "\epsilon"
 
 %format ℕ = "\mathbb{N}"
 %format ℝ = "\mathbb{R}"
@@ -95,13 +96,16 @@
 %format _⊨_  = "\_\models\_"
 %format ⊨  = "\models"
 
-%format ◁  = "\lhd"
+%format ◁ = "\lhd"
+%format ▷ = "\rhd"
 %format || = "|\!|"
 %format ||₀ = "|\!|_0"
 %format [[ = "|\!|"
 %format ]] = "|\!|"
 %format [_] = "|\_|"
 %format [_] = "|\!|\_|\!|"
+%format ⟦ = "\llbracket"
+%format ⟧ = "\rrbracket"
 
 %format ∫ = "\int"
 %format P_A = "\mathrm{P}_\mathrm{A}" 
@@ -109,7 +113,9 @@
 %format P_Γ = "\mathrm{P}_\Gamma"
 %format  ⇒ = "\Rightarrow"
 %format ℂ = "\mathbb{C}"
-%format ▷ = "\lhd"
 %format Γ = "\Gamma" 
 
 %format . = "."
+%format • = "\bullet"
+
+%format ₁ = 1

@@ -35,7 +35,7 @@
 
 \institute{
   School of Computer Science, University of Nottingham, UK\\
-  \email{\{psztxa,psx???\}@@nottingham.ac.uk}
+  \email{\{psztxa,psxzt8\}@@nottingham.ac.uk}
 }
 
 %  \authorrunning{} has to be set for the shorter version of the authors' names;
@@ -54,13 +54,13 @@
 \begin{document}
 
 \maketitle
-Strictly positive types can be represented as containers, that is 
+Strictly positive types can be represented as containers \cite{containers}, that is 
 |S : Set| and a family of positions |P : S → Set| giving rise to a
 functor |S ◁ P : Set ⇒ Set| given by |(S ◁ P) X = Σ s : S . P s → X|.
 Every container has an inital algebra (The W-type) and a terminal
 coalgebra (The M-type). However, there are types which don't fit into
 this scheme, an example is the type |Bush| which can be defined
-coinductively :
+coinductively:
 \begin{code}
 record Bush (A : Set) : Set where
   coinductive
@@ -70,11 +70,11 @@ record Bush (A : Set) : Set where
 \end{code}
 This type is isomorphic to the type of functions of binary trees, that
 is |(BT → A) ≅ Bush A| where |BT| is defined inductively as the
-initial algebra of |F X = 1 ⊎ X × X|, see \cite{repr-of-terminal}.
+initial algebra of |F X = 1 ⊎ X × X|, see \cite{altenkirch2001representations}.
 
 Hence we want to define a notion of containers in higher kinds which
 model strictly positive functors like the functor giving rise to
-|Bush| which is
+|Bush| which is:
 \begin{code}
 B : (Set → Set) → Set → Set
 B F X = X × F (F X)
@@ -82,15 +82,15 @@ B F X = X × F (F X)
 
 We define a notion of higher container |HCont : Ty → Set| where |Ty|
 are just the types of simply typed $\lambda$-calculus with one base
-type |set|. |HCont is just a special case of |HCont-NF : Con → Ty →
+type |set|. |HCont| is just a special case of |HCont-NF : Con → Ty →
 Set| where |Con| are the contexts of simply typed $\lambda$-calculus
-|HCont A = HCont-NF ∙ A|. We also use |Var : Con → Ty → Set| for the
-typed de Bruijn variables|
+|HCont A = HCont-NF • A|. We also use |Var : Con → Ty → Set| for the
+typed de Bruijn variables.
 
 The definition of |HCont-NF| is straightforward:
 \begin{code}
 data HCont-NF where
-  lam : HCont-NF (Γ ▹ A) B → HCont-NF Γ (A ⇒ B)
+  lam : HCont-NF (Γ ▷ A) B → HCont-NF Γ (A ⇒ B)
   ne  : HCont-NE Γ → HCont-NF Γ set
 \end{code}
 This is defined mutually with |HCont-NE : Con → Set| which represent
@@ -107,45 +107,44 @@ record HCont-NE Γ where
     R : {x : Var Γ A} {s : S x} (p : P s) → HCont-SP Γ A
 
 data HCont-SP where
-  ε : HCont-SP Γ set
+  ε   : HCont-SP Γ set
   _,_ : HCont-NF Γ A → HCont-SP Γ B → HCont-SP Γ (A ⇒ B)
 \end{code}
 In the example we define an element of
-|HCont (set ⇒ set) ⇒  (set ⇒ set)| using |lam| twice reducing it to
-|HContNE Γ₀| with |Γ₀ = ∙ ▹ set ⇒ set ▹ set|. Since there are no sums
+|HCont (set ⇒ set) ⇒ (set ⇒ set)| using |lam| twice reducing it to
+|HCont-NE Γ₀| with |Γ₀ = • ▷ set ⇒ set ▷ set|. Since there are no sums
 involved |S| is always |⊤|. We have two elements of |Var Γ A| in both
 cases |P x = ⊤| since there is exactly one top-level occurence. In the
 first case with |A = set| there is no recursion since the domain
 context s empty, while in the second one we need to model
 |B' F X = F (F X)| which proceeds recursively.
 
-We can define
+We can define:
 \begin{code}
-⟦_⟧set : (DD : HCont-Set Γ)(γ : ⟦ Γ ⟧C) → Set
-⟦_⟧ne : HCont-NE Γ Δ → ⟦ Γ ⟧C → ⟦ Δ ⟧C
-⟦_⟧nf : HCont-NF Γ A → ⟦ Γ ⟧C → ⟦ A ⟧T
-⟦_⟧H : HCont A → ⟦ A ⟧T
-⟦ C ⟧H = ⟦ C ⟧nf tt
+[_]ne : HCont-NE Γ → [ Γ ]C → Set
+[_]sp : HCont-SP Γ A → [ Γ ]C → [ A ]T
+[_]nf : HCont-NF Γ A → [ Γ ]C → [ A ]T
+[_]H  : HCont A → [ A ]T
 \end{code}
-where |⟦_⟧T : Ty → Set₁| and |⟦_⟧C : Con → Set₁| are the interpretation
+where |[_]T : Ty → Set1| and |[_]C : Con → Set1| are the interpretation
 of types in the intended model.
 
 we have just started our investigation, and hope to be able to extend
 the standard results of containers to these higher kinded
 containers. In particular we would like to show
 \begin{itemize}
-\item that higher containers give rise to higher heredetary functors,
+\item that higher containers give rise to higher hereditary functors,
  
 \item that higher containers for a model of simply typed
   $\lambda$-calculus,
   
-\item Provide a notion of higher container morphisms which are
+\item provide a notion of higher container morphisms which are
   complete,
 
-\item Construct initial algebras and terminal coalgebras of
+\item construct initial algebras and terminal coalgebras of
   endo-containers,
 
-\item reinterpret and extend the results from \cite{repr-of-terminal}.
+\item reinterpret and extend the results from \cite{altenkirch2001representations}.
  
 \end{itemize}
 
