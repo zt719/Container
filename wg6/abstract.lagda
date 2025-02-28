@@ -23,7 +23,7 @@
 %%
 % Regular title as in the article class.
 %
-\title{$\Pi$-types for the container model}
+\title{Containers in Higher Kinds}
 
 % Authors are joined by \and. Their affiliations are given by \inst, which indexes
 % into the list defined using \institute
@@ -31,12 +31,11 @@
 \author{
   Thorsten Altenkirch \and
   Zhili Tian
-  
 }
 
 \institute{
   School of Computer Science, University of Nottingham, UK\\
-  \email{\{psztxa,psxsd7\}@@nottingham.ac.uk}
+  \email{\{psztxa,psx???\}@@nottingham.ac.uk}
 }
 
 %  \authorrunning{} has to be set for the shorter version of the authors' names;
