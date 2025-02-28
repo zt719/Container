@@ -149,6 +149,11 @@ containers. In particular we would like to show
  
 \end{itemize}
 
+\section*{Acknowledgements}
+\label{sec:acknowledgements}
+
+This development is based on discussions the first author had with
+H{\aa}kan Gylterud.
 
 
 \bibliographystyle{plain}
