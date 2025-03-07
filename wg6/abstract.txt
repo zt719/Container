@@ -1,0 +1,7 @@
+Strictly positive types can be represented as containers, and every container has an initial algebra - W-type, and a terminal coalgebra - M-type. In particular, containers give rise to functors of such algebras. However, there are types which don't fit into this scheme. An example is the coinductive type Bush, where it has a head of type X and tail being Bush of Bush of X. Hence we want to define a notion of containers in higher kinds which model strictly positive functors like the functor giving rise to Bush, which has type (Set → Set) → (Set → Set)
+
+We define a notion of higher-kinded container HCont over a given kind Ty, where Ty are just the types of simply typed λ-calculus with one base type. Technique and definition of hereditary substitution such as de Bruijn indexing and normal form are borrowed in order to implement the intended model. We also give the semantics by interpreting HCont to a higher-kinded functors.
+
+We would like to show: that higher containers give rise to higher hereditary functors; that higher containers for a model of simply typed λ-calculus; provide a notion of higher container morphisms which are complete; construct initial algebras and terminal coalgebras of endo-containers,
+
+This development is based on discussions with Håkan Gylterud.
