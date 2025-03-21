@@ -1,325 +1,191 @@
-{-# OPTIONS --type-in-type #-}
+{-# OPTIONS --type-in-type --allow-unsolved-metas #-}
 
-{- tree types, with dom and appT -}
+module HCont where
 
 open import Data.Product
+open import Data.Sum
 open import Data.Unit
 open import Data.Empty
-open import Relation.Binary.PropositionalEquality
 
 {- Syntax -}
 
+infixr 20 _⇒_
 data Ty : Set where
-  set : Ty
+  ∘ : Ty
   _⇒_ : Ty → Ty → Ty
 
+private variable A B C : Ty
+
+infixl 5 _▹_
 data Con : Set where
-  • : Con
-  _▷_ : Con → Ty → Con
+  ∙   : Con
+  _▹_ : Con → Ty → Con
 
-infixl 5 _▷_
-
-dom : Ty → Con
-dom set = •
-dom (A ⇒ B) = dom B ▷ A
-
-variable A B C : Ty
-variable Γ Δ : Con
+private variable Γ Δ : Con
 
 data Var : Con → Ty → Set where
-  zero : Var (Γ ▷ A) A
-  suc  : Var Γ A → Var (Γ ▷ B) A
+  vz : Var (Γ ▹ A) A
+  vs : Var Γ A → Var (Γ ▹ B) A
 
-record HCont-Set (Γ : Con) : Set
+private variable x y : Var Γ A
 
-data HCont-NE (Γ : Con) : Con → Set
+data Nf : Con → Ty → Set
 
-data HCont-NF : Con → Ty → Set where
-  lam : HCont-NF (Γ ▷ A) B → HCont-NF Γ (A ⇒ B)
-  ne  : HCont-Set Γ → HCont-NF Γ set
+record Ne (Γ : Con) (B : Ty) : Set
 
-record HCont-Set Γ  where
+data Sp : Con → Ty → Ty → Set
+
+data Nf where
+  lam : Nf (Γ ▹ A) B → Nf Γ (A ⇒ B)
+  ne  : Ne Γ ∘ → Nf Γ ∘
+
+record Ne Γ B where
   inductive
   field
-    S : Var Γ A → Set
-    P : {x : Var Γ A}(s : S x) → Set
-    R : {x : Var Γ A}{s : S x}(p : P s) → HCont-NE Γ (dom A)
+    S : Set
+    P : S → Var Γ A → Set
+    R : (s : S) (x : Var Γ A) (p : P s x) → Sp Γ A B
 
-data HCont-NE Γ where
-  ε : HCont-NE Γ • 
-  _,_ : HCont-NE Γ Δ → HCont-NF Γ A → HCont-NE Γ (Δ ▷ A)
+data Sp where
+  ε   : Sp Γ A A
+  _,_ : Nf Γ A → Sp Γ B C → Sp Γ (A ⇒ B) C
 
 HCont : Ty → Set
-HCont A = HCont-NF • A
+HCont A = Nf ∙ A
 
--- Semantics
+{- Semantics -}
 
 ⟦_⟧T : Ty → Set
-⟦ set ⟧T = Set
+⟦ ∘ ⟧T = Set
 ⟦ A ⇒ B ⟧T = ⟦ A ⟧T → ⟦ B ⟧T
 
 ⟦_⟧C : Con → Set
-⟦ • ⟧C = ⊤
-⟦ Γ ▷ A ⟧C = ⟦ Γ ⟧C × ⟦ A ⟧T
-
-appT : ⟦ A ⟧T → ⟦ dom A ⟧C → Set
-appT {A = set} X tt = X
-appT {A = A ⇒ B} f (β , a) = appT {A = B} (f a) β
+⟦ ∙ ⟧C = ⊤
+⟦ Γ ▹ A ⟧C = ⟦ Γ ⟧C × ⟦ A ⟧T
 
 ⟦_⟧v : Var Γ A → ⟦ Γ ⟧C → ⟦ A ⟧T
-⟦ zero ⟧v (_ , a) = a
-⟦ suc x ⟧v (γ , _) = ⟦ x ⟧v γ
+⟦ vz ⟧v (γ , a) = a
+⟦ vs x ⟧v (γ , a) = ⟦ x ⟧v γ
 
---record ⟦_⟧set (DD : HCont-Set Γ)(γ : ⟦ Γ ⟧C) : Set
-⟦_⟧set : (DD : HCont-Set Γ)(γ : ⟦ Γ ⟧C) → Set
-⟦_⟧ne : HCont-NE Γ Δ → ⟦ Γ ⟧C → ⟦ Δ ⟧C
+⟦_⟧nf : Nf Γ A → ⟦ Γ ⟧C → ⟦ A ⟧T
+⟦_⟧ne : Ne Γ ∘ → ⟦ Γ ⟧C → Set
+⟦_⟧sp : Sp Γ A B → ⟦ Γ ⟧C → ⟦ A ⟧T → ⟦ B ⟧T
 
-⟦_⟧nf : HCont-NF Γ A → ⟦ Γ ⟧C → ⟦ A ⟧T
-⟦ lam CC ⟧nf γ a = ⟦ CC ⟧nf (γ , a)
-⟦ ne DD ⟧nf γ = ⟦ DD ⟧set γ
+⟦ lam x ⟧nf γ a = ⟦ x ⟧nf (γ , a)
+⟦ ne x ⟧nf γ = ⟦ x ⟧ne γ
 
-app : HCont-NF Γ (A ⇒ B) → HCont-NF (Γ ▷ A) B
-app (lam CC) = CC
+⟦_⟧ne {Γ} record { S = S ; P = P ; R = R } γ =
+  Σ[ s ∈ S ] ({A : Ty} (x : Var Γ A) (p : P s x) → ⟦ R s x p ⟧sp γ (⟦ x ⟧v γ))
 
-⟦_⟧set {Γ} record { S = S ; P = P ; R = R } γ =
-  Σ[ s ∈ ({A : Ty}(x : Var Γ A) → S x) ]
-    ({A : Ty}{x : Var Γ A}{s : S x}(p : P s) → appT (⟦ x ⟧v γ) (⟦ R p ⟧ne γ) )
+⟦ ε ⟧sp γ a = a
+⟦ n , ns ⟧sp γ f = ⟦ ns ⟧sp γ (f (⟦ n ⟧nf γ))
 
-⟦_⟧H : HCont A → ⟦ A ⟧T
-⟦ C ⟧H = ⟦ C ⟧nf tt
+⟦_⟧hcont : HCont A → ⟦ A ⟧T
+⟦ x ⟧hcont = ⟦ x ⟧nf tt
 
-{-
-record ⟦_⟧set {Γ} CC γ where
-  inductive
-  open HCont-Set CC
-  field
-    s : (x : Var Γ A) → S x
-    r : {x : Var Γ A}{s : S x}(p : P s) → appT (⟦ x ⟧v γ) (⟦ R p ⟧ne γ) 
--}
-⟦ ε ⟧ne γ = tt
-⟦ CC* , CC ⟧ne γ = ⟦ CC* ⟧ne γ , ⟦ CC ⟧nf γ
+{- Weakening -}
 
--- morphisms
+_-_ : (Γ : Con) → Var Γ A → Con
+∙ - ()
+(Γ ▹ A) - vz = Γ
+(Γ ▹ A) - (vs x) = (Γ - x) ▹ A
 
+wkv : (x : Var Γ A) → Var (Γ - x) B → Var Γ B
+wkv vz y = vs y
+wkv (vs x) vz = vz
+wkv (vs x) (vs y) = vs (wkv x y)
 
-{-
-record Cat : Set where
-  field
-    obj : Set
-    hom : obj → obj → Set
-    id : {A : obj} → hom A A
-    _∘_ : {A B C : obj} → hom B C → hom A B → hom A C
+{- Variable Equality -}
 
-record FuncSet (A B : Cat) : Set where
-  open Cat A renaming (obj to objA ; hom to homA ; id to idA ; _∘_ to _∘A_)
-  open Cat B renaming (obj to objB ; hom to homB ; id to idB ; _∘_ to _∘B_)   
-  field
-    Fobj : objA → objB
-    Fmap : {X Y : objA} → homA X Y → homB (Fobj X) (Fobj Y)
+data EqVar : Var Γ A → Var Γ B → Set where
+  same : EqVar x x
+  diff : (x : Var Γ A) (y : Var (Γ - x) B) → EqVar x (wkv x y)
 
-Func : Cat → Cat → Cat
+eq : (x : Var Γ A) (y : Var Γ B) → EqVar x y
+eq vz vz = same
+eq vz (vs y) = diff vz y
+eq (vs x) vz = diff (vs x) vz
+eq (vs x) (vs y) with eq x y
+eq (vs x) (vs .x)          | same = same
+eq (vs x) (vs .(wkv x y')) | diff .x y' = diff (vs x) (vs y')
 
-record Nat {A B : Cat} (F G : FuncSet A B) : Set where
-  open Cat A renaming (obj to objA ; hom to homA ; id to idA ; _∘_ to _∘A_)
-  open Cat B renaming (obj to objB ; hom to homB ; id to idB ; _∘_ to _∘B_)
-  open FuncSet F
-  open FuncSet G renaming (Fobj to Gobj ; Fmap to Gmap)
-  field 
-     fam : (X : objA) → homB (Fobj X) (Gobj X)
-     -- nat : {X Y : objA}(f : homA X Y) →
-     --          (Gmap f) ∘B (α X) ≡ (α Y) ∘B (Fmap f)  
+{- Weakening Nf -}
 
-Func A B =
-  record {
-    obj = FuncSet A B ;
-    hom = λ F G → Nat F G ;
-    id = λ {F} →
-        record { fam = λ X → idB {(FuncSet.Fobj F X)} } ;
-    _∘_ = λ {F} {G} {H} β α →
-        record { fam = λ X → (Nat.fam β) X ∘B Nat.fam α X} }
+wkNf : (x : Var Γ A) → Nf (Γ - x) B → Nf Γ B
+wkNe : (x : Var Γ A) → Ne (Γ - x) B → Ne Γ B
+wkSp : (x : Var Γ A) → Sp (Γ - x) B C → Sp Γ B C
+
+wkNf x (lam t) = lam (wkNf (vs x) t)
+wkNf x (ne e) = ne (wkNe x e)
+
+wkNe {Γ} {A} {C} x record { S = S ; P = P ; R = R }
+  = record { S = S ; P = P' ; R = R' }
   where
-    open Cat A renaming (obj to objA ; hom to homA ; id to idA ; _∘_ to _∘A_)
-    open Cat B renaming (obj to objB ; hom to homB ; id to idB ; _∘_ to _∘B_)
+  P' : S → Var Γ B → Set
+  P' s y with eq x y
+  P' s .x | same = ⊥
+  P' s y  | diff .x y' = P s y'
 
-SET : Cat
-Cat.obj SET = Set
-Cat.hom SET = λ X Y → X → Y
-Cat.id SET = λ x → x
-Cat._∘_ SET = λ g f a → g (f a)
+  R' : (s : S) (y : Var Γ B) → P' s y → Sp Γ B C
+  R' s y p with eq x y
+  R' s .x () | same
+  R' s y p   | diff .x y' = wkSp x (R s y' p)
 
-⟦_⟧Cat : Ty → Cat
-⟦ set ⟧Cat = SET
-⟦ A ⇒ B ⟧Cat = Func ⟦ A ⟧Cat ⟦ B ⟧Cat
+wkSp x ε = ε
+wkSp x (n , ns) = wkNf x n , wkSp x ns
 
-⊤-Cat : Cat
-⊤-Cat = record { obj = ⊤ ; hom = λ tt tt → ⊤ ; id = tt ; _∘_ = λ tt tt → tt }
+{- Auxiliary functions -}
 
-_×-Cat_ : Cat → Cat → Cat
-A ×-Cat B =
-  record { obj = objA × objB ;
-           hom = λ (A₀ , B₀) (A₁ , B₁) → homA A₀ A₁ × homB B₀ B₁ ;
-           id = λ {(X , Y)} → idA {X} , idB {Y} ;
-           _∘_ = λ (f₀ , g₀) (f₁ , g₁) → (f₀ ∘A f₁) , (g₀ ∘B g₁) }
-    where
-    open Cat A renaming (obj to objA ; hom to homA ; id to idA ; _∘_ to _∘A_)
-    open Cat B renaming (obj to objB ; hom to homB ; id to idB ; _∘_ to _∘B_)
+appSp : Sp Γ A (B ⇒ C) → Nf Γ B → Sp Γ A C
+appSp ε u = u , ε
+appSp (n , ns) u = n , appSp ns u
 
-⟦_⟧Cat-C : Con → Cat
-⟦ • ⟧Cat-C = ⊤-Cat
-⟦ Γ ▷ A ⟧Cat-C = ⟦ Γ ⟧Cat-C ×-Cat ⟦ A ⟧Cat
+{- η-expansion -}
 
-⟦_⟧cat-nf : HCont-NF Γ A → FuncSet ⟦ Γ ⟧Cat-C ⟦ A ⟧Cat
-⟦ CC ⟧cat-nf = {!!}
+nvar : Var Γ A → Nf Γ A
+ne2nf : Ne Γ A → Nf Γ A
 
-
-⟦_⟧cat : {A : Ty} → HCont A → Cat.obj (⟦ A ⟧Cat)
-⟦ CC ⟧cat = {!!}
-
--}
-
-
-{-
-record Cat : Set where
-  field
-    obj : Set
-    hom : obj → obj → Set
-    id : {A : obj} → hom A A
-    _∘_ : {A B C : obj} → hom B C → hom A B → hom A C
-
-record FuncSet (A B : Cat) : Set where
-  open Cat A renaming (obj to objA ; hom to homA ; id to idA ; _∘_ to _∘A_)
-  open Cat B renaming (obj to objB ; hom to homB ; id to idB ; _∘_ to _∘B_)   
-  field
-    Fobj : objA → objB
-    Fmap : {X Y : objA} → homA X Y → homB (Fobj X) (Fobj Y)
-
-Func : Cat → Cat → Cat
-
-record Nat {A B : Cat} (F G : FuncSet A B) : Set where
-  open Cat A renaming (obj to objA ; hom to homA ; id to idA ; _∘_ to _∘A_)
-  open Cat B renaming (obj to objB ; hom to homB ; id to idB ; _∘_ to _∘B_)
-  open FuncSet F
-  open FuncSet G renaming (Fobj to Gobj ; Fmap to Gmap)
-  field 
-     α : (X : objA) → homB (Fobj X) (Gobj X)
-     nat : {X Y : objA}(f : homA X Y) →
-              (Gmap f) ∘B (α X) ≡ (α Y) ∘B (Fmap f)  
-
-Func A B =
-  record {
-    obj = FuncSet A B ;
-    hom = λ F G → Nat F G ;
-    id = λ {F} →
-         record { α = λ X → idB {(FuncSet.Fobj F X)} ;
-                  nat = {!!} } ;
-    _∘_ = {!!} }
+nvar {Γ} {B} x =
+  ne2nf (record { S = S ; P = P ; R = R })
   where
-    open Cat A renaming (obj to objA ; hom to homA ; id to idA ; _∘_ to _∘A_)
-    open Cat B renaming (obj to objB ; hom to homB ; id to idB ; _∘_ to _∘B_)   
---    F : 
--}
+  S : Set
+  S = ⊤
 
+  P : S → Var Γ A → Set
+  P tt y with eq x y
+  P tt .x | same = ⊤
+  P tt y  | diff .x y' = ⊥
 
-{-
-⟦_⟧ : HCont A → ⟦ A ⟧T
-⟦ CC ⟧ = ⟦ CC ⟧nf tt
+  R : (s : S) (y : Var Γ A) → P s y → Sp Γ A B
+  R tt y p with eq x y
+  R tt .x p | same = ε
+  R tt y () | diff .x y'
 
-⟦_⟧T* : Ty → Set
+ne2nf {Γ} {∘} x = ne x
+ne2nf {Γ} {A ⇒ C} record { S = S ; P = P ; R = R } =
+  lam (ne2nf (record { S = S ; P = P' ; R = R' }))
+  where
+  P' : S → Var (Γ ▹ A) B → Set
+  P' s vz = ⊥
+  P' s (vs x) = P s x
 
-record Func (A B : Ty) : Set 
-record Nat {A B} (F G : Func A B) : Set
-⟦_⟧Tm : (A : Ty) → (X Y : ⟦ A ⟧T) → Set
-⟦ set ⟧Tm X Y = X → Y
-⟦ A ⇒ B ⟧Tm F G = {!Nat F G!}
+  R' : (s : S) (x : Var (Γ ▹ A) B) → P' s x → Sp (Γ ▹ A) B C
+  R' s vz ()
+  R' s (vs x) p = appSp (wkSp vz (R s x p)) (nvar vz)
 
+{- Normalization -}
 
+_[_:=_] : Nf Γ B → (x : Var Γ A) → Nf (Γ - x) A → Nf (Γ - x) B
+_<_:=_> : Sp Γ A B → (x : Var Γ A) → Nf (Γ - x) A → Sp (Γ - x) A B
+_◇_ : Nf Γ A → Sp Γ A B → Nf Γ B
 
+_[_:=_] = {!!}
+_<_:=_> = {!!}
+_◇_ = {!!}
 
-record Func A B where
-  field
-    F : ⟦ A ⟧T → ⟦ B ⟧T
-    fmap : {X Y : ⟦ A ⟧T} → ⟦ A ⟧Tm X Y → ⟦ B ⟧Tm (F X) (F Y)
+infixl 20 _$_
+_$_ : Nf Γ (A ⇒ B) → Nf Γ A → Nf Γ B
+lam t $ u = t [ vz := u ]
 
-record Nat {A}{B} F G where
-  field
-    α : (X : ⟦ A ⟧T) → ⟦ B ⟧Tm (Func.F F X) (Func.F G X)
---    nat : {X Y : ⟦ A ⟧T} (f : ⟦ A ⟧Tm X Y)
+{- Degree ?? -}
 
--}
--- example
-
-H : (Set → Set) → (Set → Set)
-H F A = A × F (F A)
-
-TT : Ty
-TT =  ((set ⇒ set)  ⇒ (set ⇒ set))
-HC : HCont TT
-HC = lam (lam (ne (record { S = S ; P = P ; R = R })))
-  where Γ₀ : Con
-        Γ₀ = • ▷ (set ⇒ set) ▷ set
-        S : {A : Ty} → Var Γ₀ A → Set
-        S zero = ⊤
-        S (suc zero) = ⊤
-        P : {A : Ty} {x : Var Γ₀ A} → S x → Set
-        P {x = zero} tt = ⊤
-        P {x = suc zero} tt = ⊤
-        R-FA-S : {A : Ty} → Var Γ₀ A → Set
-        R-FA-S zero = ⊤
-        R-FA-S (suc zero) = ⊤
-        R-FA-P :  {A : Ty} {x : Var Γ₀ A} → R-FA-S x → Set 
-        R-FA-P {x = zero} tt = ⊤
-        R-FA-P {x = suc zero} tt = ⊥
-        R-FA-R :  {A : Ty} {x : Var Γ₀ A} {s : R-FA-S x} → R-FA-P s → HCont-NE Γ₀ (dom A)
-        R-FA-R {x = zero} tt = ε
-        R-FA-R {x = suc zero} ()
-        R-FA-R {x = suc (suc ())} s
-        R-FA : HCont-Set Γ₀
-        R-FA = record { S = R-FA-S ; P = R-FA-P ; R = R-FA-R }            
-        R-FFA-S : {A : Ty} → Var Γ₀ A → Set
-        R-FFA-S zero = ⊤
-        R-FFA-S (suc zero) = ⊤
-        R-FFA-P :  {A : Ty} {x : Var Γ₀ A} → R-FFA-S x → Set 
-        R-FFA-P {x = zero} tt = ⊥
-        R-FFA-P {x = suc zero} tt = ⊤
-        R-FFA-R :  {A : Ty} {x : Var Γ₀ A} {s : R-FFA-S x} → R-FFA-P s → HCont-NE Γ₀ (dom A)
-        R-FFA-R {x = zero} ()
-        R-FFA-R {x = suc zero} p = ε , (ne R-FA)
-        R-FFA-R {x = suc (suc ())} s
-        R-FFA : HCont-Set Γ₀
-        R-FFA = record { S = R-FFA-S ; P = R-FFA-P ; R = R-FFA-R }  
-        R : {A : Ty} {x : Var Γ₀ A} {s : S x} → P s → HCont-NE Γ₀ (dom A)
-        R {x = zero} p = ε
-        R {x = suc zero} p = ε , (ne R-FFA) 
-
--- first order containers
-
-record Cont : Set where
-  constructor _◁_
-  field
-    S : Set
-    P : S → Set
-
-cont→hcont : Cont → HCont (set ⇒ set)
-cont→hcont (S ◁ P) = lam (ne (record { S = T ; P = Q ; R = λ {A} {x} {s} p → R {s = s} p }))
-  where T : Var (• ▷ set) A → Set
-        T zero = S
-        Q : {x : Var (• ▷ set) A} → T x → Set
-        Q {x = zero} s = P s
-        R : {A : Ty}{x : Var (• ▷ set) A} {s : T x} → Q {x = x} s → HCont-NE (• ▷ set) (dom A)
-        R {x = zero} {s = s} q = ε {Γ = (• ▷ set)}
-        
-hcont→cont : HCont (set ⇒ set) → Cont
-hcont→cont (lam (ne record { S = S ; P = P ; R = R })) = (S zero) ◁ P {x = zero}
-
---- categorical structure
-
-{-
-
-IC-NF : HCont-NF (• ▷ A) A
-IC-NF {set} = {!!}
-IC-NF {A ⇒ B} = {!!}
-
-IC : HCont (A ⇒ A)
-IC = {!!} -- lam {!!}
-
--}
