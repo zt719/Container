@@ -57,6 +57,9 @@
 %format η = "\eta"
 %format ω = "\omega"
 %format ε = "\epsilon"
+%format μ = "\mu"
+%format ν = "\nu"
+
 
 %format ℕ = "\mathbb{N}"
 %format ℝ = "\mathbb{R}"
@@ -79,6 +82,7 @@
 %format νT = "\nu\mathrm{T}"
 
 %format Σ[ = "{\Sigma}["
+%format ∈ = "\in"
 %format φ = "\phi"
 %format ψ = "\psi"
 %format Σ-eq = "{\Sigma}\mathrm{-eq}"
@@ -106,6 +110,7 @@
 %format [_] = "|\!|\_|\!|"
 %format ⟦ = "\llbracket"
 %format ⟧ = "\rrbracket"
+%format ⟦_⟧ = "\llbracket\_\rrbracket"
 
 %format ∫ = "\int"
 %format P_A = "\mathrm{P}_\mathrm{A}" 
@@ -119,3 +124,45 @@
 %format • = "\bullet"
 
 %format ₁ = 1
+%format Set₁ = "\mathbf{Set}_1"
+
+%format _◁_ = "\_\lhd\_"
+%format ◁ = "\lhd"
+
+%format Cont₂ = "\mathrm{Cont}_2"
+%format _◁_,_,_ = "\_\lhd\_,\_,\_"
+%format P₀ = "P_0"
+%format R₀ = "R_0"
+%format P₁ = "P_1"
+
+
+%format _⇒_ = "\_\Rightarrow\_"
+%format ⇒ = "\Rightarrow"
+
+%format ∙ = "\bullet"
+%format _▹_ = "\_\rhd\_"
+%format ▹ = "\rhd"
+
+%format ⟧T = "\rrbracket_{\mathrm{T}}"
+%format ⟦_⟧T = "\llbracket\_\rrbracket_{\mathrm{T}}"
+
+%format ⟧F = "\rrbracket_{\mathrm{F}}"
+%format ⟦_⟧F = "\llbracket\_\rrbracket_{\mathrm{F}}"
+
+%format ⟧C = "\rrbracket_{\mathrm{C}}"
+%format ⟦_⟧C = "\llbracket\_\rrbracket_{\mathrm{C}}"
+
+%format ⟧v = "\rrbracket_{\mathrm{v}}"
+%format ⟦_⟧v = "\llbracket\_\rrbracket_{\mathrm{v}}"
+
+
+%format ⟧nf = "\rrbracket_{\mathrm{nf}}"
+%format ⟦_⟧nf = "\llbracket\_\rrbracket_{\mathrm{nf}}"
+
+%format ⟧ne = "\rrbracket_{\mathrm{ne}}"
+%format ⟦_⟧ne = "\llbracket\_\rrbracket_{\mathrm{ne}}"
+
+%format ⟧sp = "\rrbracket_{\mathrm{sp}}"
+%format ⟦_⟧sp = "\llbracket\_\rrbracket_{\mathrm{sp}}"
+
+%format  s⊥ = "\mathrm{s}_\bot"

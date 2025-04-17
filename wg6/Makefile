@@ -15,6 +15,9 @@ abstract.pdf: $(SRC)
 	#TEXINPUTS=./latex:$$TEXINPUTS pdflatex $< ;\
 	#TEXINPUTS=./latex:$$TEXINPUTS pdflatex $< ;\
 
+talk.pdf: talk.tex
+	latexmk -pdf -f -pdflatex='pdflatex -halt-on-error' $<
+
 clean:
 	$(RM) *.aux *.log *.out *.vrb paper.pdf \
               *.bbl *.blg *.fdb_latexmk *.toc *.fls *.cut 
