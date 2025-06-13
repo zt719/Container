@@ -58,9 +58,9 @@ record ⟦_⟧ (SP : Cont) (X : Type) : Type where
 ⟦ FC ⟧₁ k (s , p) = s , k ∘ p
 -- {-# INLINE ⟦_⟧₁ #-}
 
-⟦_⟧₂ : {SP TQ : Cont} (uf : Cont[ SP , TQ ])
+⟦_⟧Hom : {SP TQ : Cont} (uf : Cont[ SP , TQ ])
   → (X : Type) → ⟦ SP ⟧ X → ⟦ TQ ⟧ X
-⟦ f ◃ g ⟧₂ X (s , p) = f s , p ∘ g s
+⟦ f ◃ g ⟧Hom X (s , p) = f s , p ∘ g s
 
 C→F : Cont → Func
 C→F SP = record
@@ -72,7 +72,7 @@ C→F SP = record
 
 CH→N : Cont[ SP , TQ ] → Nat (C→F SP) (C→F TQ)
 CH→N uf = record
-  { η = ⟦ uf ⟧₂
+  { η = ⟦ uf ⟧Hom
   ; nat = λ f → refl
   }
 
