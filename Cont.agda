@@ -1,109 +1,248 @@
-{-# OPTIONS --cubical #-}
+{-# OPTIONS --guardedness #-}
 
-module Container.Cont where
+module Cont where
 
+open import Data.Empty
+open import Data.Unit
+open import Data.Sum
+open import Data.Product
 open import Function.Base
-open import Cubical.Foundations.Prelude
+open import Relation.Binary.PropositionalEquality hiding ([_])
 
--- Functor & Natural Transformation
+{- Containers -}
 
-record Func : Type₁ where
-  field
-    F₀ : Type → Type
-    F₁ : ∀ {X Y} → (X → Y) → F₀ X → F₀ Y
-    F-id : ∀ {X} → F₁ {X} id ≡ id
-    F-∘ : ∀ {X Y Z} (f : Y → Z) (g : X → Y)
-        → F₁ (f ∘ g) ≡ F₁ f ∘ F₁ g
-
-record Nat (F G : Func) : Type₁ where
-  open Func F
-  open Func G renaming (F₀ to G₀; F₁ to G₁)
-  field
-    η : ∀ X → F₀ X → G₀ X
-    nat : ∀ {X Y} (f : X → Y) → G₁ f ∘ η X ≡ η Y ∘ F₁ f
-
-postulate
-  Nat≡ : {F G : Func} {α β : Nat F G}
-    → Nat.η α ≡ Nat.η β → α ≡ β
-
--- Container
 infix  0 _◃_
-record Cont : Type₁ where
+infixr 0 _→ᶜ_
+infixr 9 _∘ᶜ_
+infixr 2 _×ᶜ_
+infixr 1 _⊎ᶜ_
+
+record Cont : Set₁ where
   constructor _◃_
   field
-    S : Type
-    P : S → Type
+    S : Set
+    P : S → Set
+    
+variable
+  SP TQ SP' TQ' UV UV' : Cont
 
-private variable SP TQ WR : Cont
-
--- Container Hom
-record Cont[_,_] (SP TQ : Cont) : Type where
-  constructor _◃_
-  open Cont SP
-  open Cont TQ renaming (S to T; P to Q)
-  field
-    u : S → T
-    f : (s : S) → Q (u s) → P s
-
--- Container Extension Functor
-record ⟦_⟧ (SP : Cont) (X : Type) : Type where
+record ⟦_⟧ (SP : Cont) (X : Set) : Set where
   constructor _,_
   open Cont SP
   field
     s : S
-    p : P s → X
+    f : (p : P s) → X
 
-⟦_⟧₁ : (FC : Cont) → {X Y : Type} → (X → Y) → ⟦ FC ⟧ X → ⟦ FC ⟧ Y
--- ⟦ FC ⟧₁ f sp = sp .⟦_⟧.s , (f ∘ sp .⟦_⟧.p)
-⟦ FC ⟧₁ k (s , p) = s , k ∘ p
--- {-# INLINE ⟦_⟧₁ #-}
+⟦_⟧₁ : (SP : Cont) {X Y : Set} → (X → Y) → ⟦ SP ⟧ X → ⟦ SP ⟧ Y
+⟦ SP ⟧₁ g sk = sk .s , g ∘ sk .f
+  where open ⟦_⟧
+{-# INLINE ⟦_⟧₁ #-}
 
-⟦_⟧Hom : {SP TQ : Cont} (uf : Cont[ SP , TQ ])
-  → (X : Type) → ⟦ SP ⟧ X → ⟦ TQ ⟧ X
-⟦ f ◃ g ⟧Hom X (s , p) = f s , p ∘ g s
+⟦_⟧₁' : (SP : Cont) {X Y : Set} → (X → Y) → ⟦ SP ⟧ X → ⟦ SP ⟧ Y
+⟦ SP ⟧₁' g (s , f) = s , g ∘ f
 
-C→F : Cont → Func
-C→F SP = record
-  { F₀ = ⟦ SP ⟧
-  ; F₁ = ⟦ SP ⟧₁
-  ; F-id = refl
-  ; F-∘ = λ f g → refl
-  }
+{- Category of Containers -}
 
-CH→N : Cont[ SP , TQ ] → Nat (C→F SP) (C→F TQ)
-CH→N uf = record
-  { η = ⟦ uf ⟧Hom
-  ; nat = λ f → refl
-  }
-
--- ⟦_⟧ is fully-faithfull
-module _ {α : Nat (C→F SP) (C→F TQ)} where
-  open Nat α
+record _→ᶜ_ (SP TQ : Cont) : Set where
+  constructor _◃_
   open Cont SP
   open Cont TQ renaming (S to T; P to Q)
-  open ⟦_⟧
+  field
+    g : S → T
+    h : (s : S) → Q (g s) → P s
 
-  N→CH : Nat (C→F SP) (C→F TQ) → Cont[ SP , TQ ]
-  N→CH α = s ∘ m ◃ p ∘ m
-    where
-      m : (s : S) → ⟦ T ◃ Q ⟧ (P s)
-      m s = η (P s) (s , id)
+⟦_⟧→ᶜ : SP →ᶜ TQ → (X : Set) → ⟦ SP ⟧ X → ⟦ TQ ⟧ X
+⟦ g ◃ h ⟧→ᶜ X (s , f) = g s , f ∘ h s
 
-  uf′ : Cont[ SP , TQ ]
-  uf′ = N→CH α
+idᶜ : SP →ᶜ SP
+idᶜ = id ◃ λ s → id
 
-  path : CH→N uf′ ≡ α
-  path = Nat≡ (λ i X (s , f) → nat f i (s , id))
+_∘ᶜ_ : TQ →ᶜ UV → SP →ᶜ TQ → SP →ᶜ UV
+(g ◃ h) ∘ᶜ (g' ◃ h') = (g ∘ g') ◃ λ s → h' s ∘ h (g' s)
 
-_∘c_ : Cont → Cont → Cont
-(S ◃ P) ∘c (T ◃ Q) =
-  Σ[ s ∈ S ] (P s → T) ◃ λ (s , f) → Σ[ p ∈ P s ] Q (f p)
-{-
-  ⟦ S ◃ P ⟧ (⟦ T ◃ Q ⟧ X)
-= Σ[ s ∈ S ] (P s → Σ[ t ∈ T ] (Q t → X))
-= Σ[ s ∈ S ] Σ[ f ∈ (P s → T) ] (p : P s) → Q (f p) → X
-= Σ[ sf ∈ Σ[ s ∈ S ] (P s → T) ] (p : P (fst sf)) → Q ((snd sf) p) → X
-= Σ[ sf ∈ Σ[ s ∈ S ] (P s → T) ] (Σ[ p ∈ P (fst sf)) ] (Q ((snd sf) p)) → X)
-= ⟦ Σ[ s ∈ S ] (P s → T) ◃ λ sf → Σ[ p ∈ P (fst sf) ] (Q (snd sf) p) ⟧ X
-= ⟦ Σ[ s ∈ S ] (P s → T) ◃ λ (s , f) → Σ[ p ∈ P s ] (Q f p) ⟧ X
--}
+⊤ᶜ : Cont
+⊤ᶜ = ⊤ ◃ λ _ → ⊥
+
+⊥ᶜ : Cont
+⊥ᶜ = ⊥ ◃ λ ()
+
+_×ᶜ_ : Cont → Cont → Cont
+(S ◃ P) ×ᶜ (T ◃ Q) = S × T ◃ λ (s , t) → P s ⊎ Q t
+
+_×ᶜ₁_ : SP →ᶜ TQ → SP' →ᶜ TQ' → SP ×ᶜ SP' →ᶜ TQ ×ᶜ TQ'
+(g ◃ h) ×ᶜ₁ (g' ◃ h')
+  = (λ (s , s') → g s , g' s')
+  ◃ λ{ (s , s') (inj₁ p) → inj₁ (h s p) ; (s , s') (inj₂ p') → inj₂ (h' s' p') }
+
+_⊎ᶜ_ : Cont → Cont → Cont
+(S ◃ P) ⊎ᶜ (T ◃ Q) = S ⊎ T ◃ λ{ (inj₁ s) → P s ; (inj₂ t) → Q t }
+
+_⊎ᶜ₁_ : SP →ᶜ TQ → SP' →ᶜ TQ' → SP ⊎ᶜ SP' →ᶜ TQ ⊎ᶜ TQ'
+(g ◃ h) ⊎ᶜ₁ (g' ◃ h')
+  = (λ{ (inj₁ s) → inj₁ (g s) ; (inj₂ s') → inj₂ (g' s') })
+  ◃ λ{ (inj₁ s) p → h s p ; (inj₂ s') p' → h' s' p' }
+
+Πᶜ : (I : Set) → (I → Cont) → Cont
+Πᶜ I Cs = ((i : I) → let S ◃ P = Cs i in S)
+  ◃ λ f → Σ[ i ∈ I ] let S ◃ P = Cs i in P (f i)
+
+infix 2 Πᶜ-syntax
+
+Πᶜ-syntax : (I : Set) → (I → Cont) → Cont
+Πᶜ-syntax = Πᶜ
+
+syntax Πᶜ-syntax A (λ x → B) = Πᶜ[ x ∈ A ] B
+
+Πᶜ₁ : (I : Set) {SPs TQs : I → Cont}
+  → ((i : I) → SPs i →ᶜ TQs i) → Πᶜ I SPs →ᶜ Πᶜ I TQs
+Πᶜ₁ I f = (λ s i → let g ◃ h = f i in g (s i))
+  ◃ λ s (i , p) → i , let g ◃ h = f i in h (s i) p
+
+Σᶜ : (I : Set) → (I → Cont) → Cont
+Σᶜ I SPs = (Σ[ i ∈ I ] let S ◃ P = SPs i in S)
+  ◃ λ (i , s) → let S ◃ P = SPs i in P s
+
+infix 2 Σᶜ-syntax
+
+Σᶜ-syntax : (I : Set) → (I → Cont) → Cont
+Σᶜ-syntax = Σᶜ
+
+syntax Σᶜ-syntax A (λ x → B) = Σᶜ[ x ∈ A ] B
+
+Σᶜ₁ : (I : Set) {SPs TQs : I → Cont}
+  → ((i : I) → SPs i →ᶜ TQs i) → Σᶜ I SPs →ᶜ Σᶜ I TQs
+Σᶜ₁ I f = (λ (i , s) → i , let g ◃ h = f i in g s)
+  ◃ λ (i , s) p → let g ◃ h = f i in h s p
+
+!ᶜ : (SP : Cont) → ⊥ᶜ →ᶜ SP
+!ᶜ (S ◃ P) = (λ ()) ◃ λ ()
+
+¿ᶜ : (SP : Cont) → SP →ᶜ ⊤ᶜ
+¿ᶜ (S ◃ P) = (λ _ → tt) ◃ λ s ()
+
+proj₁ᶜ : SP ×ᶜ TQ →ᶜ SP
+proj₁ᶜ = proj₁ ◃ λ{ (S , T) p → inj₁ p }
+
+proj₂ᶜ : SP ×ᶜ TQ →ᶜ TQ
+proj₂ᶜ = proj₂ ◃ λ{ (S , T) q → inj₂ q }
+
+<_,_>ᶜ : SP →ᶜ TQ → SP →ᶜ TQ' → SP →ᶜ TQ ×ᶜ TQ'
+< f ◃ g , f' ◃ g' >ᶜ = < f , f' > ◃ λ{ s (inj₁ p) → g s p ; s (inj₂ q) → g' s q }
+
+inj₁ᶜ : SP →ᶜ SP ⊎ᶜ TQ
+inj₁ᶜ = inj₁ ◃ λ s p → p
+
+inj₂ᶜ : TQ →ᶜ SP ⊎ᶜ TQ
+inj₂ᶜ = inj₂ ◃ λ s q → q
+
+[_,_]ᶜ : SP →ᶜ TQ → SP' →ᶜ TQ → SP ⊎ᶜ SP' →ᶜ TQ
+[ f ◃ g , f' ◃ g' ]ᶜ = [ f , f' ] ◃ λ{ (inj₁ s) p → g s p ; (inj₂ s') q → g' s' q }
+
+{- Semiring -}
+
+lunit⊎ᶜ : ⊥ᶜ ⊎ᶜ SP →ᶜ SP
+lunit⊎ᶜ = (λ{ (inj₂ s) → s }) ◃ λ{ (inj₂ s) p → p }
+
+runit⊎ᶜ : SP ⊎ᶜ ⊥ᶜ →ᶜ SP
+runit⊎ᶜ = (λ{ (inj₁ s) → s }) ◃ λ{ (inj₁ s) p → p }
+
+comm⊎ᶜ : SP ⊎ᶜ TQ →ᶜ TQ ⊎ᶜ SP
+comm⊎ᶜ = (λ{ (inj₁ s) → inj₂ s ; (inj₂ t) → inj₁ t }) ◃ λ{ (inj₁ t) q → q ; (inj₂ s) p → p }
+
+assoc⊎ᶜ : (SP ⊎ᶜ TQ) ⊎ᶜ UV →ᶜ SP ⊎ᶜ (TQ ⊎ᶜ UV)
+assoc⊎ᶜ = (λ{ (inj₁ (inj₁ s)) → inj₁ s ; (inj₁ (inj₂ t)) → inj₂ (inj₁ t) ; (inj₂ u) → inj₂ (inj₂ u) })
+  ◃ λ{ (inj₁ (inj₁ s)) p → p ; (inj₁ (inj₂ t)) q → q ; (inj₂ u) v → v }
+
+lunit×ᶜ : ⊤ᶜ ×ᶜ SP →ᶜ SP
+lunit×ᶜ = (λ (tt , s) → s) ◃ λ (tt , s) p → inj₂ p
+
+runit×ᶜ : SP ×ᶜ ⊤ᶜ →ᶜ SP
+runit×ᶜ = (λ (s , tt) → s) ◃ λ (s , tt) p → inj₁ p
+
+comm×ᶜ : SP ×ᶜ TQ →ᶜ TQ ×ᶜ SP
+comm×ᶜ = (λ (s , t) → t , s) ◃ λ{ (s , t) (inj₁ q) → inj₂ q ; (s , t) (inj₂ p) → inj₁ p }
+
+assoc×ᶜ : (SP ×ᶜ TQ) ×ᶜ UV →ᶜ SP ×ᶜ (TQ ×ᶜ UV)
+assoc×ᶜ = (λ ((s , t) , u) → s , t , u)
+  ◃ λ{ ((s , t) , u) (inj₁ p) → inj₁ (inj₁ p) ; ((s , t) , u) (inj₂ (inj₁ q)) → inj₁ (inj₂ q) ; ((s , t) , u) (inj₂ (inj₂ v)) → inj₂ v }
+
+labsᶜ : ⊥ᶜ ×ᶜ SP →ᶜ ⊥ᶜ
+labsᶜ = (λ ()) ◃ λ ()
+
+rabsᶜ : SP ×ᶜ ⊥ᶜ →ᶜ ⊥ᶜ
+rabsᶜ = (λ ()) ◃ λ ()
+
+ldistrᶜ : SP ×ᶜ (TQ ⊎ᶜ UV) →ᶜ SP ×ᶜ TQ ⊎ᶜ SP ×ᶜ UV
+ldistrᶜ = (λ{ (s , inj₁ t) → inj₁ (s , t) ; (s , inj₂ u) → inj₂ (s , u) })
+        ◃ λ{ (s , inj₁ t) (inj₁ p) → inj₁ p ; (s , inj₁ t) (inj₂ q) → inj₂ q
+           ; (s , inj₂ u) (inj₁ p) → inj₁ p ; (s , inj₂ u) (inj₂ v) → inj₂ v }
+
+rdistrᶜ : (SP ⊎ᶜ TQ) ×ᶜ UV →ᶜ SP ×ᶜ UV ⊎ᶜ TQ ×ᶜ UV
+rdistrᶜ = (λ{ (inj₁ s , u) → inj₁ (s , u) ; (inj₂ t , u) → inj₂ (t , u) })
+        ◃ λ{ (inj₁ s , u) (inj₁ p) → inj₁ p ; (inj₁ s , u) (inj₂ v) → inj₂ v
+           ; (inj₂ t , u) (inj₁ q) → inj₁ q ; (inj₂ t , u) (inj₂ v) → inj₂ v }
+
+{- Infinitary Commutative Semiring -}
+
+module _ (I : Set) (J : I → Set) (C : (i : I) → J i → Cont) where
+
+  assocΣᶜ : Σᶜ[ (i , j) ∈ Σ I J ] C i j →ᶜ Σᶜ[ i ∈ I ] Σᶜ[ j ∈ J i ] C i j
+  assocΣᶜ = (λ ((i , j) , c) → i , j , c) ◃ λ s p → p
+
+  curryᶜ : Πᶜ[ (i , j) ∈ Σ I J ] C i j →ᶜ Πᶜ[ i ∈ I ] Πᶜ[ j ∈ J i ] C i j
+  curryᶜ = (λ c i j → c (i , j)) ◃ λ s (i , j , c) → (i , j) , c
+
+  choiceᶜ : Σᶜ[ f ∈ ((i : I) → J i) ] Πᶜ[ i ∈ I ] C i (f i) →ᶜ Πᶜ[ i ∈ I ] Σᶜ[ j ∈ J i ] C i j
+  choiceᶜ = (λ (f , g) i → f i , g i) ◃ λ s p → p
+
+{- Container Functor Composition -}
+
+Iᶜ : Cont
+Iᶜ = ⊤ ◃ λ{ tt → ⊤ }
+
+infixr 3 _⊗ᶜ_
+
+_⊗ᶜ_ : Cont → Cont → Cont
+(S ◃ P) ⊗ᶜ (T ◃ Q) = (Σ[ s ∈ S ] (P s → T)) ◃ λ (s , f) → Σ[ p ∈ P s ] Q (f p)
+
+_⊗ᶜ₁_ : SP →ᶜ TQ → SP' →ᶜ TQ' → SP ⊗ᶜ SP' →ᶜ TQ ⊗ᶜ TQ'
+(g ◃ h) ⊗ᶜ₁ (g' ◃ h') = (λ (s , f) → g s , g' ∘ f ∘ h s)
+  ◃ λ{ (s , f) (q , q') → h s q , h' (f (h s q)) q' }
+
+λᶜ : Iᶜ ⊗ᶜ SP →ᶜ SP
+λᶜ = (λ (tt , f) → f tt) ◃ λ (tt , f) p → tt , p
+
+λ⁻ᶜ : SP →ᶜ Iᶜ ⊗ᶜ SP
+λ⁻ᶜ = (λ s → tt , λ _ → s) ◃ λ s (tt , p) → p
+
+ρᶜ : SP ⊗ᶜ Iᶜ →ᶜ SP
+ρᶜ = (λ (s , _) → s) ◃ λ (s , _) p → p , tt
+
+ρ⁻ᶜ : SP →ᶜ SP ⊗ᶜ Iᶜ
+ρ⁻ᶜ = (λ s → s , λ _ → tt) ◃ λ s (p , tt) → p
+
+αᶜ : (SP ⊗ᶜ TQ) ⊗ᶜ UV →ᶜ SP ⊗ᶜ (TQ ⊗ᶜ UV)
+αᶜ = (λ ((s , f) , g) → s , λ p → (f p , λ q → g (p , q)))
+   ◃ λ ((s , f) , g) (p , (q , v)) → ((p , q) , v)
+
+α⁻ᶜ : SP ⊗ᶜ (TQ ⊗ᶜ UV) →ᶜ (SP ⊗ᶜ TQ) ⊗ᶜ UV
+α⁻ᶜ = (λ{ (s , f) → (s , λ p → let (t , g) = f p in t) , λ (p , q) → let (t , g) = f p in g q })
+     ◃ λ (s , f) ((p , q) , v) → (p , (q , v))
+
+{- Finitary Compositions -}
+
+open import Data.Nat
+open import Data.Fin
+
+⨂ᶜ : {n : ℕ} → (Fin n → Cont) → Cont
+⨂ᶜ f = ⨂ᶜS f ◃ ⨂ᶜP f
+  where
+  ⨂ᶜS : {n : ℕ} → (Fin n → Cont) → Set
+  ⨂ᶜS {zero} f = ⊤
+  ⨂ᶜS {suc n} f with f zero
+  ... | S ◃ P = Σ[ s ∈ S ] (P s → ⨂ᶜS {n} (f ∘ suc))
+
+  ⨂ᶜP : {n : ℕ} (f : Fin n → Cont) → ⨂ᶜS {n} f → Set
+  ⨂ᶜP {zero} f tt = ⊤
+  ⨂ᶜP {suc n} f (s , g) with f zero
+  ... | S ◃ P = Σ[ p ∈ P s ] ⨂ᶜP {n} (f ∘ suc) (g p)

@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical #-}
+{-# OPTIONS --cubical --guardedness #-}
 
 open import Function.Base
 open import Cubical.Foundations.Prelude

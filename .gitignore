@@ -1,2 +1,12 @@
-# ignore all interface files
 *.agdai
+*.aux
+*.bbl
+*.blg
+*.fdb_latexmk
+*.fls
+*.ptb
+*.cls
+*.log
+*.pdf
+*.log
+*.out
