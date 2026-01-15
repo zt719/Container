@@ -1,0 +1,39 @@
+Higher Order Containers
+
+- definition of higher containers
+- discuss model of STL (wip)
+- example : Bushes and partial Bushes + .. + monad transformers
+- example : inductive Bush (H F X = 1 + X × F (F X))
+
+- external & internal fps
+- derive W² by example (working general construction)
+- not clear how to M² (conductive Bushes) reducible to W
+
+- Is there W³? external fp for 3rd order => internal fp for W¹
+   W : Hcont ((* => *) => *) but this doesn't exist beauase of [[_]]T
+
+- Discuss: adding fps to the syntax, give up the naive [[_]]T semantcis
+- either coinductive syntax or add fos to the syntax
+
+—–
+
+- discuss model of STL
+- semantics : types, heredetary functors ? [[_]]C
+- external fixpoints W² (maybe mention M²)
+- Is there W³? external fp for 3rd order => internal fp for W¹
+   W : Hcont ((* => *) => *) but this doesn't exist becuase of [[_]]T
+- adding fp to the syntax (coinductive syntax or explicit fps)
+- how to define semantics
+- system F^ω like calculus +> HCont = Heredetary normal forms
+- add explict fps (μ , ν) , is there semantics ?
+
+– Is there semantics using heredetary functors
+F : (* => *) => (* => *)
+
+[[F]]T : (Set → Set) → (Set → Set)
+
+[[_]]C : HCon A → [[ A ]]T
+
+[[_]]Cat : (F : HCon A) → Cat [[F]]T
+
+– try to remember, Zhili doesn't believe it.
