@@ -1,7 +1,5 @@
 {-# OPTIONS --guardedness #-}
 
-module Cont.2ContWM where
-
 open import Data.Empty
 open import Data.Unit
 open import Data.Sum

@@ -64,6 +64,7 @@ variable ts us ws : Sp Γ A B
 HCont : Kind → Set₁
 HCont = Nf •
 
+
 ap : Nf Γ (A ⇒ B) → Nf (Γ ▹ A) B
 ap (lam t) = t
 
@@ -510,3 +511,4 @@ emb {Γ} {A} (ne (S ◃ P ◃ R))
 
 embSp ε u = u
 embSp (t , ts) u = embSp ts (app u (emb t))
+ 

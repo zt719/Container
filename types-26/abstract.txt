@@ -1,0 +1,222 @@
+\documentclass{easychair}
+%include lhs2TeX.fmt
+%include agda.fmt
+%include lib.fmt
+\usepackage{amssymb}
+
+% use this if you have a long article and want to create an index
+% \usepackage{makeidx}
+
+% In order to save space or manage large tables or figures in a
+% landcape-like text, you can use the rotating and pdflscape
+% packages. Uncomment the desired from the below.
+%
+% \usepackage{rotating}
+% \usepackage{pdflscape}
+
+% Some of our commands for this guide.
+%
+
+%\makeindex
+
+%% Front Matter
+%%
+% Regular title as in the article class.
+%
+\title{Containers in Higher Kinds}
+
+% Authors are joined by \and. Their affiliations are given by \inst, which indexes
+% into the list defined using \institute
+%
+\author{
+  Thorsten Altenkirch \and
+  Zhili Tian
+}
+
+\institute{
+  School of Computer Science, University of Nottingham, UK\\
+  \email{\{psztxa,psxzt8\}@@nottingham.ac.uk}
+}
+
+%  \authorrunning{} has to be set for the shorter version of the authors' names;
+% otherwise a warning will be rendered in the running heads. When processed by
+% EasyChair, this command is mandatory: a document without \authorrunning
+% will be rejected by EasyChair
+
+\authorrunning{Altenkirch, Tian}
+
+% \titlerunning{} has to be set to either the main title or its shorter
+% version for the running heads. When processed by
+% EasyChair, this command is mandatory: a document without \titlerunning
+% will be rejected by EasyChair
+\titlerunning{Containers in Higher Kinds}
+
+\begin{document}
+
+\maketitle
+
+Strictly positive types can be represented as containers \cite{containers}, that is 
+|S : Set| and a family of positions |P : S → Set| giving rise to a
+functor |S ◁ P : Set ⇒ Set| given by |[ S ◁ P ] X = Σ s : S . P s → X|.
+Every container has an inital algebra (The W-type) and a terminal coalgebra
+(The M-type). We now look like a type |LList A|:
+
+\begin{code}
+data LList (A : Set) : Set where
+  [] : LList A
+  _∷_ : A → LList (LList A) → LList A
+\end{code}
+
+Despite the nested inductive structrue, we can show that for any |A : Set|,
+|LList A| is still an instance of W-type, and |LList| is a container.
+However, is |LList| on itself an initial algebra of a functor in the category
+of containers?
+Hence we want to define a notion of containers in higher kinds which
+model strictly positive functors of containers. In the example, the
+signature of such functor is given by:
+
+\begin{code}
+H : (Set → Set) → Set → Set
+H F X = 1 + X × F (F X)
+\end{code}
+
+We start by defining a notion of second-order container |2Cont| by
+extending the |Cont| with |PF : S → Set| to count the position of |F|,
+and |RF : (s : S) → PF s → 2Cont| to make the definition recursive.
+Those give rise to a functor |[ S ◃ PX ◃ PF ◃ RF ] : Cont ⇒ Cont|. We also
+define the morphisms of |2Cont| and show that it is a category. In the example,
+there are two shapes (|S = Bool|). The left shape is constant, while in the right
+shape, there is one position of |X| (|PX true = ⊤|) and one position of |F|
+(|PF true = ⊤|). To complete the definition, we need to model |H' F X = F X|
+which procceds recursively (RF true tt = H').
+
+It can be proved that |LList| is the initial algebra of |H|. (LList ≃ μ H). However,
+does a fixpoint generally exist in the second-order case? We develop a sencond-order least
+fixpoint |2W : 2Cont → Cont| by inductive-recursion. TODO: talk about the greatest fixpoint.
+
+We define a notion of higher container |HCont : Ty → Set| where |Ty|
+are just the types of simply typed $\lambda$-calculus with one base
+type |*| which represents |Set|. |HCont| is just a special case of
+|Nf : Con → Ty → Set| where |Con| are the contexts of simply typed
+$\lambda$-calculus |HCont A = Nf • A|. We also use |Var : Con → Ty → Set|
+for the typed de Bruijn variables.
+
+The definition of |Nf| is straightforward:
+
+\begin{code}
+data Nf where
+  lam : Nf (Γ ▹ A) B → Nf Γ (A ⇒ B)
+  ne  : Ne Γ * → Nf Γ *
+\end{code}
+
+This is defined mutually with |Ne : Con → Ty → Set| which represent
+the type expressions in a given context, and also |Sp : Con → Ty → Ty
+→ Set| which is interpreted as the list of |Nf| for the spine,
+i.e. the iterated domains of a given type (E.g. the spine of |A ⇒ B ⇒
+Set| is the context |• ▷ A ▷ B|.
+
+\begin{code}
+record Ne Γ B where
+  inductive
+  field
+    S : Set
+    P : Var Γ A → S → Set
+    R : (x : Var Γ A) (s : S) → P x s → Sp Γ A B
+
+data Sp where
+  ε   : Sp Γ A A
+  _,_ : Nf Γ A → Sp Γ B C → Sp Γ (A ⇒ B) C
+\end{code}
+
+It is easy to see that |Set ≃ HCont *|, |Cont ≃ HCont (* ⇒ *)| and
+|2Cont ≃ HCont ((* ⇒ *) ⇒ * ⇒ *)|. The higher containers with any |Ty|
+form a category.
+
+For the semantics, we can naively define:
+
+\begin{code}
+[_]Ne : Ne Γ → [ Γ ]C → Set
+[_]Sp : Sp Γ A → [ Γ ]C → [ A ]T
+[_]Nf : Nf Γ A → [ Γ ]C → [ A ]T
+[_] : HCont A → [ A ]T
+\end{code}
+
+where |[_]T| and |[_]C| are the interpretation of types and contexts
+in the intended model:
+
+\being{code}
+[_]T : Ty → Set₁
+[ * ]T = Set
+[ A ⇒ B ]T = [ A ]T → [ B ]T
+
+[_]C : Con → Set₁
+[ • ]C = Lift (suc zero) ⊤
+[ Γ ▹ A ]C = [ Γ ]C × [ A ]T
+\end{code}
+
+In the example, we could retrieve the definition of |H| along this interpretation.
+
+Alternatively, we define a better interpreation:
+
+\begin{code}
+[_]T : Ty → Set₁
+[ * ]T = Set
+[ A ⇒ B ]T = HCont A ⇒ HCont B
+
+[_] : {A : Ty} → HCont A → [ A ]T
+[_] {*} (ne (S ◃ P ◃ R)) = S
+[_] {A ⇒ B} H F = napp H F
+\end{code}
+
+where |napp| applies |H| on |F|, just like $\lambda$-term application.
+
+Now the meaning of |HCont *| is the category of Sets, and the meaning of
+|HCont (A ⇒ B)| is the functor between category of |HCont A| and |HCont B|, which
+is consistent with our first-order and second-order semantics.
+
+TODO: talk about
+1. higher W and external & internal fixpoint.
+2. adding fps to syntax or coinductively definition
+
+We also show that higher containers are normalized $\lambda$-terms closed under
+arbitary products and coproducts. That is we can define a syntax of |Tm|:
+
+\begin{code}
+data Tm : Con → Ty → Set₁ where
+  var : Var Γ A → Tm Γ A
+  lam : Tm (Γ ▹ A) B → Tm Γ (A ⇒ B)
+  app : Tm Γ (A ⇒ B) → Tm Γ A → Tm Γ B
+  Π : (I : Set) → (I → Tm Γ A) → Tm Γ A
+  Σ : (I : Set) → (I → Tm Γ A) → Tm Γ A
+\end{code}
+
+together with a normalization function:
+
+\begin{code}
+nf : Tm Γ A → Nf Γ A
+\end{code}
+
+As a result, we show |(Con, Tms, Ty, Tm)| is a model of simply-typed $\lambda$-calculus,
+where |Tms| is a list of |Tm|. Similarly, We also hope to prove that after the
+normalization, |(Con, Nfs, Ty, Nf)| is also a model, where |Nfs| is a list of |Nf|.
+
+\begin{itemize}
+ 
+\end{itemize}
+
+\section*{Acknowledgements}
+\label{sec:acknowledgements}
+
+This development is based on discussions the first author had with
+H{\aa}kan Gylterud.
+
+
+\bibliographystyle{plain}
+%\bibliographystyle{alpha}
+%\bibliographystyle{unsrt}
+%\bibliographystyle{abbrv}
+\bibliography{references}
+
+%------------------------------------------------------------------------------
+
+\end{document}
