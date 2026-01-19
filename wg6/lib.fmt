@@ -146,23 +146,5 @@
 %format ⟧T = "\rrbracket_{\mathrm{T}}"
 %format ⟦_⟧T = "\llbracket\_\rrbracket_{\mathrm{T}}"
 
-%format ⟧F = "\rrbracket_{\mathrm{F}}"
-%format ⟦_⟧F = "\llbracket\_\rrbracket_{\mathrm{F}}"
-
 %format ⟧C = "\rrbracket_{\mathrm{C}}"
 %format ⟦_⟧C = "\llbracket\_\rrbracket_{\mathrm{C}}"
-
-%format ⟧v = "\rrbracket_{\mathrm{v}}"
-%format ⟦_⟧v = "\llbracket\_\rrbracket_{\mathrm{v}}"
-
-
-%format ⟧nf = "\rrbracket_{\mathrm{nf}}"
-%format ⟦_⟧nf = "\llbracket\_\rrbracket_{\mathrm{nf}}"
-
-%format ⟧ne = "\rrbracket_{\mathrm{ne}}"
-%format ⟦_⟧ne = "\llbracket\_\rrbracket_{\mathrm{ne}}"
-
-%format ⟧sp = "\rrbracket_{\mathrm{sp}}"
-%format ⟦_⟧sp = "\llbracket\_\rrbracket_{\mathrm{sp}}"
-
-%format  s⊥ = "\mathrm{s}_\bot"
