@@ -1,0 +1,496 @@
+\documentclass{easychair}
+%% ODER: format ==         = "\mathrel{==}"
+%% ODER: format /=         = "\neq "
+%
+%
+\makeatletter
+\@ifundefined{lhs2tex.lhs2tex.sty.read}%
+  {\@namedef{lhs2tex.lhs2tex.sty.read}{}%
+   \newcommand\SkipToFmtEnd{}%
+   \newcommand\EndFmtInput{}%
+   \long\def\SkipToFmtEnd#1\EndFmtInput{}%
+  }\SkipToFmtEnd
+
+\newcommand\ReadOnlyOnce[1]{\@ifundefined{#1}{\@namedef{#1}{}}\SkipToFmtEnd}
+\usepackage{amstext}
+\usepackage{amssymb}
+\usepackage{stmaryrd}
+\DeclareFontFamily{OT1}{cmtex}{}
+\DeclareFontShape{OT1}{cmtex}{m}{n}
+  {<5><6><7><8>cmtex8
+   <9>cmtex9
+   <10><10.95><12><14.4><17.28><20.74><24.88>cmtex10}{}
+\DeclareFontShape{OT1}{cmtex}{m}{it}
+  {<-> ssub * cmtt/m/it}{}
+\newcommand{\texfamily}{\fontfamily{cmtex}\selectfont}
+\DeclareFontShape{OT1}{cmtt}{bx}{n}
+  {<5><6><7><8>cmtt8
+   <9>cmbtt9
+   <10><10.95><12><14.4><17.28><20.74><24.88>cmbtt10}{}
+\DeclareFontShape{OT1}{cmtex}{bx}{n}
+  {<-> ssub * cmtt/bx/n}{}
+\newcommand{\tex}[1]{\text{\texfamily#1}}	% NEU
+
+\newcommand{\Sp}{\hskip.33334em\relax}
+
+
+\newcommand{\Conid}[1]{\mathit{#1}}
+\newcommand{\Varid}[1]{\mathit{#1}}
+\newcommand{\anonymous}{\kern0.06em \vbox{\hrule\@width.5em}}
+\newcommand{\plus}{\mathbin{+\!\!\!+}}
+\newcommand{\bind}{\mathbin{>\!\!\!>\mkern-6.7mu=}}
+\newcommand{\rbind}{\mathbin{=\mkern-6.7mu<\!\!\!<}}% suggested by Neil Mitchell
+\newcommand{\sequ}{\mathbin{>\!\!\!>}}
+\renewcommand{\leq}{\leqslant}
+\renewcommand{\geq}{\geqslant}
+\usepackage{polytable}
+
+%mathindent has to be defined
+\@ifundefined{mathindent}%
+  {\newdimen\mathindent\mathindent\leftmargini}%
+  {}%
+
+\def\resethooks{%
+  \global\let\SaveRestoreHook\empty
+  \global\let\ColumnHook\empty}
+\newcommand*{\savecolumns}[1][default]%
+  {\g@addto@macro\SaveRestoreHook{\savecolumns[#1]}}
+\newcommand*{\restorecolumns}[1][default]%
+  {\g@addto@macro\SaveRestoreHook{\restorecolumns[#1]}}
+\newcommand*{\aligncolumn}[2]%
+  {\g@addto@macro\ColumnHook{\column{#1}{#2}}}
+
+\resethooks
+
+\newcommand{\onelinecommentchars}{\quad-{}- }
+\newcommand{\commentbeginchars}{\enskip\{-}
+\newcommand{\commentendchars}{-\}\enskip}
+
+\newcommand{\visiblecomments}{%
+  \let\onelinecomment=\onelinecommentchars
+  \let\commentbegin=\commentbeginchars
+  \let\commentend=\commentendchars}
+
+\newcommand{\invisiblecomments}{%
+  \let\onelinecomment=\empty
+  \let\commentbegin=\empty
+  \let\commentend=\empty}
+
+\visiblecomments
+
+\newlength{\blanklineskip}
+\setlength{\blanklineskip}{0.66084ex}
+
+\newcommand{\hsindent}[1]{\quad}% default is fixed indentation
+\let\hspre\empty
+\let\hspost\empty
+\newcommand{\NB}{\textbf{NB}}
+\newcommand{\Todo}[1]{$\langle$\textbf{To do:}~#1$\rangle$}
+
+\EndFmtInput
+\makeatother
+%
+%
+%
+%
+%
+%
+% This package provides two environments suitable to take the place
+% of hscode, called "plainhscode" and "arrayhscode". 
+%
+% The plain environment surrounds each code block by vertical space,
+% and it uses \abovedisplayskip and \belowdisplayskip to get spacing
+% similar to formulas. Note that if these dimensions are changed,
+% the spacing around displayed math formulas changes as well.
+% All code is indented using \leftskip.
+%
+% Changed 19.08.2004 to reflect changes in colorcode. Should work with
+% CodeGroup.sty.
+%
+\ReadOnlyOnce{polycode.fmt}%
+\makeatletter
+
+\newcommand{\hsnewpar}[1]%
+  {{\parskip=0pt\parindent=0pt\par\vskip #1\noindent}}
+
+% can be used, for instance, to redefine the code size, by setting the
+% command to \small or something alike
+\newcommand{\hscodestyle}{}
+
+% The command \sethscode can be used to switch the code formatting
+% behaviour by mapping the hscode environment in the subst directive
+% to a new LaTeX environment.
+
+\newcommand{\sethscode}[1]%
+  {\expandafter\let\expandafter\hscode\csname #1\endcsname
+   \expandafter\let\expandafter\endhscode\csname end#1\endcsname}
+
+% "compatibility" mode restores the non-polycode.fmt layout.
+
+\newenvironment{compathscode}%
+  {\par\noindent
+   \advance\leftskip\mathindent
+   \hscodestyle
+   \let\\=\@normalcr
+   \let\hspre\(\let\hspost\)%
+   \pboxed}%
+  {\endpboxed\)%
+   \par\noindent
+   \ignorespacesafterend}
+
+\newcommand{\compaths}{\sethscode{compathscode}}
+
+% "plain" mode is the proposed default.
+% It should now work with \centering.
+% This required some changes. The old version
+% is still available for reference as oldplainhscode.
+
+\newenvironment{plainhscode}%
+  {\hsnewpar\abovedisplayskip
+   \advance\leftskip\mathindent
+   \hscodestyle
+   \let\hspre\(\let\hspost\)%
+   \pboxed}%
+  {\endpboxed%
+   \hsnewpar\belowdisplayskip
+   \ignorespacesafterend}
+
+\newenvironment{oldplainhscode}%
+  {\hsnewpar\abovedisplayskip
+   \advance\leftskip\mathindent
+   \hscodestyle
+   \let\\=\@normalcr
+   \(\pboxed}%
+  {\endpboxed\)%
+   \hsnewpar\belowdisplayskip
+   \ignorespacesafterend}
+
+% Here, we make plainhscode the default environment.
+
+\newcommand{\plainhs}{\sethscode{plainhscode}}
+\newcommand{\oldplainhs}{\sethscode{oldplainhscode}}
+\plainhs
+
+% The arrayhscode is like plain, but makes use of polytable's
+% parray environment which disallows page breaks in code blocks.
+
+\newenvironment{arrayhscode}%
+  {\hsnewpar\abovedisplayskip
+   \advance\leftskip\mathindent
+   \hscodestyle
+   \let\\=\@normalcr
+   \(\parray}%
+  {\endparray\)%
+   \hsnewpar\belowdisplayskip
+   \ignorespacesafterend}
+
+\newcommand{\arrayhs}{\sethscode{arrayhscode}}
+
+% The mathhscode environment also makes use of polytable's parray 
+% environment. It is supposed to be used only inside math mode 
+% (I used it to typeset the type rules in my thesis).
+
+\newenvironment{mathhscode}%
+  {\parray}{\endparray}
+
+\newcommand{\mathhs}{\sethscode{mathhscode}}
+
+% texths is similar to mathhs, but works in text mode.
+
+\newenvironment{texthscode}%
+  {\(\parray}{\endparray\)}
+
+\newcommand{\texths}{\sethscode{texthscode}}
+
+% The framed environment places code in a framed box.
+
+\def\codeframewidth{\arrayrulewidth}
+\RequirePackage{calc}
+
+\newenvironment{framedhscode}%
+  {\parskip=\abovedisplayskip\par\noindent
+   \hscodestyle
+   \arrayrulewidth=\codeframewidth
+   \tabular{@{}|p{\linewidth-2\arraycolsep-2\arrayrulewidth-2pt}|@{}}%
+   \hline\framedhslinecorrect\\{-1.5ex}%
+   \let\endoflinesave=\\
+   \let\\=\@normalcr
+   \(\pboxed}%
+  {\endpboxed\)%
+   \framedhslinecorrect\endoflinesave{.5ex}\hline
+   \endtabular
+   \parskip=\belowdisplayskip\par\noindent
+   \ignorespacesafterend}
+
+\newcommand{\framedhslinecorrect}[2]%
+  {#1[#2]}
+
+\newcommand{\framedhs}{\sethscode{framedhscode}}
+
+% The inlinehscode environment is an experimental environment
+% that can be used to typeset displayed code inline.
+
+\newenvironment{inlinehscode}%
+  {\(\def\column##1##2{}%
+   \let\>\undefined\let\<\undefined\let\\\undefined
+   \newcommand\>[1][]{}\newcommand\<[1][]{}\newcommand\\[1][]{}%
+   \def\fromto##1##2##3{##3}%
+   \def\nextline{}}{\) }%
+
+\newcommand{\inlinehs}{\sethscode{inlinehscode}}
+
+% The joincode environment is a separate environment that
+% can be used to surround and thereby connect multiple code
+% blocks.
+
+\newenvironment{joincode}%
+  {\let\orighscode=\hscode
+   \let\origendhscode=\endhscode
+   \def\endhscode{\def\hscode{\endgroup\def\@currenvir{hscode}\\}\begingroup}
+   %\let\SaveRestoreHook=\empty
+   %\let\ColumnHook=\empty
+   %\let\resethooks=\empty
+   \orighscode\def\hscode{\endgroup\def\@currenvir{hscode}}}%
+  {\origendhscode
+   \global\let\hscode=\orighscode
+   \global\let\endhscode=\origendhscode}%
+
+\makeatother
+\EndFmtInput
+%
+%
+\ReadOnlyOnce{agda.fmt}%
+
+
+\RequirePackage[T1]{fontenc}
+\RequirePackage[utf8x]{inputenc}
+\RequirePackage{ucs}
+\RequirePackage{amsfonts}
+
+\providecommand\mathbbm{\mathbb}
+
+% TODO: Define more of these ...
+\DeclareUnicodeCharacter{737}{\textsuperscript{l}}
+\DeclareUnicodeCharacter{8718}{\ensuremath{\blacksquare}}
+\DeclareUnicodeCharacter{8759}{::}
+\DeclareUnicodeCharacter{9669}{\ensuremath{\triangleleft}}
+\DeclareUnicodeCharacter{8799}{\ensuremath{\stackrel{\scriptscriptstyle ?}{=}}}
+\DeclareUnicodeCharacter{10214}{\ensuremath{\llbracket}}
+\DeclareUnicodeCharacter{10215}{\ensuremath{\rrbracket}}
+
+% TODO: This is in general not a good idea.
+\providecommand\textepsilon{$\epsilon$}
+\providecommand\textmu{$\mu$}
+
+
+%Actually, varsyms should not occur in Agda output.
+
+% TODO: Make this configurable. IMHO, italics doesn't work well
+% for Agda code.
+
+\renewcommand\Varid[1]{\mathord{\textsf{#1}}}
+\let\Conid\Varid
+\newcommand\Keyword[1]{\textsf{\textbf{#1}}}
+\EndFmtInput
+
+
+
+
+
+
+ 
+
+
+
+
+
+
+
+%%format [⇒] = "[\rightarrow]"
+%%format ⊢ = "\vdash"
+%%format _⊢_ = "\_\vdash\_"
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+\usepackage{amssymb}
+
+% use this if you have a long article and want to create an index
+% \usepackage{makeidx}
+
+% In order to save space or manage large tables or figures in a
+% landscape-like text, you can use the rotating and pdflscape
+% packages. Uncomment the desired from the below.
+%
+% \usepackage{rotating}
+% \usepackage{pdflscape}
+
+% Some of our commands for this guide.
+%
+
+%\makeindex
+
+%% Front Matter
+%%
+% Regular title as in the article class.
+%
+\title{Containers in Higher Kinds}
+
+% Authors are joined by \and. Their affiliations are given by \inst, which indexes
+% into the list defined using \institute
+%
+\author{
+  Thorsten Altenkirch \and
+  H{\aa}kan Gylterud \and
+  Zhili Tian
+}
+
+\institute{
+  School of Computer Science, University of Nottingham, UK\\
+  \email{\{psztxa,psxzt8\}@nottingham.ac.uk}
+}
+
+%  \authorrunning{} has to be set for the shorter version of the authors' names;
+% otherwise a warning will be rendered in the running heads. When processed by
+% EasyChair, this command is mandatory: a document without \authorrunning
+% will be rejected by EasyChair
+
+\authorrunning{Altenkirch, Gylterud, Tian}
+
+% \titlerunning{} has to be set to either the main title or its shorter
+% version for the running heads. When processed by
+% EasyChair, this command is mandatory: a document without \titlerunning
+% will be rejected by EasyChair
+\titlerunning{Containers in Higher Kinds}
+
+\begin{document}
+
+\maketitle
+
+Strictly positive types can be represented as containers \cite{containers}, that is \ensuremath{\Conid{S}\;\mathbin{:}\;\Conid{Set}} and a family of positions \ensuremath{\Conid{P}\;\mathbin{:}\;\Conid{S}\;\rightarrow\;\Conid{Set}} giving rise to a functor \ensuremath{\llbracket\;\Conid{S}\;\lhd\;\Conid{P}\;\rrbracket\;\mathbin{:}\;\Conid{Set}\;\Rightarrow\;\Conid{Set}}. Every container has an initial algebra (The W-type) and a terminal coalgebra (The M-type). However, there are types which don't fit into this scheme, an example is the type \ensuremath{\Conid{Bush}} which can be defined:
+
+\begin{hscode}\SaveRestoreHook
+\column{B}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{3}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{E}{@{}>{\hspre}l<{\hspost}@{}}%
+\>[B]{}\Keyword{data}\;\Conid{Bush}\;(\Conid{A}\;\mathbin{:}\;\Conid{Set})\;\mathbin{:}\;\Conid{Set}\;\Keyword{where}{}\<[E]%
+\\
+\>[B]{}\hsindent{3}{}\<[3]%
+\>[3]{}\Varid{[]}\;\mathbin{:}\;\Conid{Bush}\;\Conid{A}{}\<[E]%
+\\
+\>[B]{}\hsindent{3}{}\<[3]%
+\>[3]{}\Varid{\char95 ::\char95 }\;\mathbin{:}\;\Conid{A}\;\rightarrow\;\Conid{Bush}\;(\Conid{Bush}\;\Conid{A})\;\rightarrow\;\Conid{Bush}\;\Conid{A}{}\<[E]%
+\ColumnHook
+\end{hscode}\resethooks
+
+Although \ensuremath{\Conid{Bush}\;\Conid{A}} is not a W-type, the type constructor \ensuremath{\Conid{Bush}} itself arises as the initial algebra of a functor on a functor category\cite{bird1998nested, bird1999generalised}. This motivates the development of a notion of containers at higher kinds capable of modelling strictly positive functors over containers.
+
+\section*{Second-Order Containers}
+
+We introduce a recursive syntax \ensuremath{\Varid{2}\;\Conid{Cont}} by extending the \ensuremath{\Conid{Cont}} with a family \ensuremath{\Conid{PF}\;\mathbin{:}\;\Conid{S}\;\rightarrow\;\Conid{Set}} of positions of \ensuremath{\Conid{F}} and a continuation \ensuremath{\Conid{RF}\;\mathbin{:}\;(\Varid{s}\;\mathbin{:}\;\Conid{S})\;\rightarrow\;\Conid{PF}\;\Varid{s}\;\rightarrow\;\Varid{2}\;\Conid{Cont}}. Those give rise to an endofunctor \ensuremath{\llbracket\;\Conid{S}\;\lhd\;\Conid{PX}\;\lhd\;\Conid{PF}\;\lhd\;\Conid{RF}\;\rrbracket\;\mathbin{:}\;\Conid{Cont}\;\Rightarrow\;\Conid{Cont}}. 
+
+In the \ensuremath{\Conid{Bush}} example, the higher-order signature of such is given by \ensuremath{\Conid{H}\;\Conid{F}\;\Conid{X}\;\mathrel{=}\;\Varid{1}\;\Varid{+}\;\Conid{X}\;\times\;\Conid{F}\;(\Conid{F}\;\Conid{X})}. There is a sum involved and therefore two shapes (\ensuremath{\Conid{S}\;\mathrel{=}\;\Conid{Bool}}). The left shape is trivial with a constant, while in the right shape, there is one position of \ensuremath{\Conid{X}} (\ensuremath{\Conid{PX}\;\Varid{true}\;\mathrel{=}\;\top}) and one position of \ensuremath{\Conid{F}} (\ensuremath{\Conid{PF}\;\Varid{true}\;\mathrel{=}\;\top}). Finally, we need to model \ensuremath{\Conid{H'}\;\Conid{F}\;\Conid{X}\;\mathrel{=}\;\Conid{F}\;\Conid{X}} which procceds recursively (\ensuremath{\Conid{RF}\;\Varid{true}\;\Varid{tt}\;\mathrel{=}\;\Conid{H'}}).
+
+We define a second-order least-fixpoint operator \ensuremath{\Varid{2}\;\Conid{W}\;\mathbin{:}\;\Varid{2}\;\Conid{Cont}\;\rightarrow\;\Conid{Cont}} by inductive-recursion, thereby recovering \ensuremath{\Conid{Bush}} as the initial algebra of \ensuremath{\Conid{H}}. However, attempts to define a greatest fixpoint operator \ensuremath{\Varid{2}\;\Conid{M}\;\mathbin{:}\;\Varid{2}\;\Conid{Cont}\;\rightarrow\;\Conid{Cont}} by coinductive-induction shows an non-positive issue.
+
+\section*{Higher-Order Containers}
+
+To continue the story of constructing strictly positive functor of functor categories, we define a notion of higher container \ensuremath{\Conid{HCont}\;\mathbin{:}\;\Conid{Ty}\;\rightarrow\;\Conid{Set}}, where \ensuremath{\Conid{Ty}} are just the types of simply typed $\lambda$-calculus with one base type \ensuremath{\Varid{*}} which represents \ensuremath{\Conid{Set}}. \ensuremath{\Conid{HCont}} is just a special case of
+\ensuremath{\Conid{Nf}\;\mathbin{:}\;\Conid{Con}\;\rightarrow\;\Conid{Ty}\;\rightarrow\;\Conid{Set}} where \ensuremath{\Conid{Con}} are the contexts of simply typed
+$\lambda$-calculus \ensuremath{\Conid{HCont}\;\Conid{A}\;\mathrel{=}\;\Conid{Nf}\;\bullet\;\Conid{A}}. We also use \ensuremath{\Conid{Var}\;\mathbin{:}\;\Conid{Con}\;\rightarrow\;\Conid{Ty}\;\rightarrow\;\Conid{Set}}
+for the typed de Bruijn variables. For brevity, we do not present the full syntax. We remark that normal forms \ensuremath{\Conid{Nf}} are defined mutually with neutral terms and spines, following the standard presentation of normalization for simply typed $\lambda$-calculus\cite{keller2010normalization} .With this setting, it is easy to see that \ensuremath{\Conid{Set}\;\cong\;\Conid{HCont}\;\Varid{*}}, \ensuremath{\Conid{Cont}\;\cong\;\Conid{HCont}\;(\Varid{*}\;\Rightarrow\;\Varid{*})} and \ensuremath{\Varid{2}\;\Conid{Cont}\;\cong\;\Conid{HCont}\;((\Varid{*}\;\Rightarrow\;\Varid{*})\;\Rightarrow\;\Varid{*}\;\Rightarrow\;\Varid{*})}. 
+
+For the semantics, it seems there are two ways to go. A naive interpretation would be what we call hereditary functor, which is given by:
+
+\begin{hscode}\SaveRestoreHook
+\column{B}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{3}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{E}{@{}>{\hspre}l<{\hspost}@{}}%
+\>[B]{}\Keyword{record}\;\Conid{Cat}\;(\Conid{Obj}\;\mathbin{:}\;\Conid{Set})\;\mathbin{:}\;\Conid{Set}\;\Keyword{where}{}\<[E]%
+\\
+\>[B]{}\Keyword{record}\;\Conid{Func}\;(\Conid{C}\;\mathbin{:}\;\Conid{Cat}\;\Conid{X})\;(\Conid{D}\;\mathbin{:}\;\Conid{Cat}\;\Conid{Y})\;(\Conid{F}\;\mathbin{:}\;\Conid{X}\;\rightarrow\;\Conid{Y})\;\mathbin{:}\;\Conid{Set}{}\<[E]%
+\\
+\>[B]{}\llbracket\_\rrbracket_{\mathrm{F}}\;\mathbin{:}\;(\Conid{A}\;\mathbin{:}\;\Conid{Ty})\;\rightarrow\;\llbracket\;\Conid{A}\;\rrbracket_{\mathrm{T}}\;\rightarrow\;\Conid{Set}{}\<[E]%
+\\
+\>[B]{}\llbracket\_\rrbracket_{\mathrm{C}}\;\mathbin{:}\;(\Conid{A}\;\mathbin{:}\;\Conid{Ty})\;\rightarrow\;\Conid{Cat}\;(\Sigma\;\llbracket\;\Conid{A}\;\rrbracket_{\mathrm{T}}\;\llbracket\;\Conid{A}\;\rrbracket_{\mathrm{F}}){}\<[E]%
+\\[\blanklineskip]%
+\>[B]{}\llbracket\;\Varid{*}\;\rrbracket_{\mathrm{F}}\;\Conid{X}\;\mathrel{=}\;\Conid{Lift}\;\top{}\<[E]%
+\\
+\>[B]{}\llbracket\;\Conid{A}\;\Rightarrow\;\Conid{B}\;\rrbracket_{\mathrm{F}}\;\Conid{H}\;\mathrel{=}\;{}\<[E]%
+\\
+\>[B]{}\hsindent{3}{}\<[3]%
+\>[3]{}{\Sigma}[\;\Conid{HH}\;\in\;((\Conid{F}\;\mathbin{:}\;\llbracket\;\Conid{A}\;\rrbracket_{\mathrm{T}})\;\rightarrow\;\llbracket\;\Conid{A}\;\rrbracket_{\mathrm{F}}\;\Conid{F}\;\rightarrow\;\llbracket\;\Conid{B}\;\rrbracket_{\mathrm{F}}\;(\Conid{H}\;\Conid{F}))\;\mskip1.5mu]\;{}\<[E]%
+\\
+\>[B]{}\hsindent{3}{}\<[3]%
+\>[3]{}\Conid{Func}\;\llbracket\;\Conid{A}\;\rrbracket_{\mathrm{C}}\;\llbracket\;\Conid{B}\;\rrbracket_{\mathrm{C}}\;(\lambda\;(\Conid{F}\;\Varid{,}\;\Conid{FF})\;\rightarrow\;\Conid{H}\;\Conid{F}\;\Varid{,}\;\Conid{HH}\;\Conid{F}\;\Conid{FF}){}\<[E]%
+\ColumnHook
+\end{hscode}\resethooks
+
+where \ensuremath{\llbracket\_\rrbracket_{\mathrm{T}}\;\mathbin{:}\;\Conid{Ty}\;\rightarrow\;\Conid{Set}} and \ensuremath{\llbracket\_\rrbracket_{\mathrm{C}}\;\mathbin{:}\;\Conid{Con}\;\rightarrow\;\Conid{Set}} are the interpretation
+of types and contexts in the intended model. However, there is an inconsistency with the model when constructing the general least-fixpoint. We construct a higher container as counterexample:
+
+\begin{hscode}\SaveRestoreHook
+\column{B}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{E}{@{}>{\hspre}l<{\hspost}@{}}%
+\>[B]{}\Conid{C}\;\mathbin{:}\;\Conid{HCont}\;(((\Varid{*}\;\Rightarrow\;\Varid{*})\;\Rightarrow\;\Varid{*})\;\Rightarrow\;(\Varid{*}\;\Rightarrow\;\Varid{*})\;\Rightarrow\;\Varid{*}){}\<[E]%
+\\
+\>[B]{}\Conid{C}\;\Conid{F}\;\Conid{G}\;\mathrel{=}\;\Conid{G}\;(\Conid{F}\;\Conid{G}){}\<[E]%
+\ColumnHook
+\end{hscode}\resethooks
+
+If an external fixpoint operator \ensuremath{\Varid{3}\;\Conid{W}\;\mathbin{:}\;\Conid{HCont}\;(((\Varid{*}\;\Rightarrow\;\Varid{*})\;\Rightarrow\;\Varid{*})\;\Rightarrow\;(\Varid{*}\;\Rightarrow\;\Varid{*})\;\Rightarrow\;\Varid{*})\;\rightarrow\;\Conid{HCont}\;((\Varid{*}\;\Rightarrow\;\Varid{*})\;\Rightarrow\;\Varid{*})} exists, applying it to \ensuremath{\Conid{C}} leads to an internal fixpoint operator \ensuremath{\Varid{intW}\;\mathbin{:}\;\Conid{HCont}\;((\Varid{*}\;\Rightarrow\;\Varid{*})\;\Rightarrow\;\Varid{*})}. In the semantics, \ensuremath{\Varid{intW}} takes least-fixpoint of any functor, but we know such thing does not exist. To fix this issue, we can add fixpoint operators (\ensuremath{\mu\;\Varid{and}\;\nu}) to our syntax and define an anlternative semantics. The new model interprets higher containers \ensuremath{\Conid{HCont}\;(\Conid{A}\;\Rightarrow\;\Conid{B})} as strictly positive functors \ensuremath{\Conid{HCont}\;\Conid{A}\;\Rightarrow\;\Conid{HCont}\;\Conid{B}}. The external fixpoint \ensuremath{\Varid{3}\;\Conid{W}} now gives rise to external \ensuremath{\Conid{W}}. Notice that this is also consistent with our first-order and second-order semantics.
+
+TODO : talk about coinductive definition
+
+As a secondary contribution, we show higher containers are normalized $\lambda$-terms closed under arbitrary products and coproducts (maybe also under least-fixpoint and greatest-fixpoint). That is we can define a syntax of \ensuremath{\Conid{Tm}}:
+
+\begin{hscode}\SaveRestoreHook
+\column{B}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{3}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{E}{@{}>{\hspre}l<{\hspost}@{}}%
+\>[B]{}\Keyword{data}\;\Conid{Tm}\;\mathbin{:}\;\Conid{Con}\;\rightarrow\;\Conid{Ty}\;\rightarrow\;\mathbf{Set}_1\;\Keyword{where}{}\<[E]%
+\\
+\>[B]{}\hsindent{3}{}\<[3]%
+\>[3]{}\Varid{var}\;\mathbin{:}\;\Conid{Var}\;\Gamma\;\Conid{A}\;\rightarrow\;\Conid{Tm}\;\Gamma\;\Conid{A}{}\<[E]%
+\\
+\>[B]{}\hsindent{3}{}\<[3]%
+\>[3]{}\Varid{lam}\;\mathbin{:}\;\Conid{Tm}\;(\Gamma\;\rhd\;\Conid{A})\;\Conid{B}\;\rightarrow\;\Conid{Tm}\;\Gamma\;(\Conid{A}\;\Rightarrow\;\Conid{B}){}\<[E]%
+\\
+\>[B]{}\hsindent{3}{}\<[3]%
+\>[3]{}\Varid{app}\;\mathbin{:}\;\Conid{Tm}\;\Gamma\;(\Conid{A}\;\Rightarrow\;\Conid{B})\;\rightarrow\;\Conid{Tm}\;\Gamma\;\Conid{A}\;\rightarrow\;\Conid{Tm}\;\Gamma\;\Conid{B}{}\<[E]%
+\\
+\>[B]{}\hsindent{3}{}\<[3]%
+\>[3]{}\Pi\;\mathbin{:}\;(\Conid{I}\;\mathbin{:}\;\Conid{Set})\;\rightarrow\;(\Conid{I}\;\rightarrow\;\Conid{Tm}\;\Gamma\;\Conid{A})\;\rightarrow\;\Conid{Tm}\;\Gamma\;\Conid{A}{}\<[E]%
+\\
+\>[B]{}\hsindent{3}{}\<[3]%
+\>[3]{}\Sigma\;\mathbin{:}\;(\Conid{I}\;\mathbin{:}\;\Conid{Set})\;\rightarrow\;(\Conid{I}\;\rightarrow\;\Conid{Tm}\;\Gamma\;\Conid{A})\;\rightarrow\;\Conid{Tm}\;\Gamma\;\Conid{A}{}\<[E]%
+\ColumnHook
+\end{hscode}\resethooks
+
+together with a normalization function \ensuremath{\Varid{nf}\;\mathbin{:}\;\Conid{Tm}\;\Gamma\;\Conid{A}\;\rightarrow\;\Conid{Nf}\;\Gamma\;\Conid{A}}. Furthermore, we show \ensuremath{(\Conid{Con,}\;\Conid{Tms,}\;\Conid{Ty,}\;\Conid{Tm})} is a model of STLC (simply-typed $\lambda$-calculus), where \ensuremath{\Conid{Tms}} is a list of \ensuremath{\Conid{Tm}}. Similarly, we also hope to prove that the normalized model \ensuremath{(\Conid{Con,}\;\Conid{Nfs,}\;\Conid{Ty,}\;\Conid{Nf})} is also a STLC, where \ensuremath{\Conid{Nfs}} is a list of \ensuremath{\Conid{Nf}}.
+
+\bibliographystyle{plain}
+\bibliography{references}
+
+%------------------------------------------------------------------------------
+
+\end{document}
