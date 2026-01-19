@@ -72,14 +72,14 @@ We introduce a recursive syntax |2Cont| by extending the |Cont| with a family |P
 
 In the |Bush| example, the higher-order signature of such is given by |H F X = 1 + X × F (F X)|. There is a sum involved and therefore two shapes (|S = Bool|). The left shape is trivial with a constant, while in the right shape, there is one position of |X| (|PX true = ⊤|) and one position of |F| (|PF true = ⊤|). Finally, we need to model |H' F X = F X| which procceds recursively (|RF true tt = H'|).
 
-We define a second-order least-fixpoint operator |2W : 2Cont → Cont| by inductive-recursion, thereby recovering |Bush| as the initial algebra of |H|. However, attempts to define a greatest fixpoint operator |2M : 2Cont → Cont| by coinductive-induction shows an non-positive issue.
+We define a second-order least-fixpoint operator |2W : 2Cont → Cont| by induction-recursion, thereby recovering |Bush| as the initial algebra of |H|. However, attempts to define a greatest fixpoint operator |2M : 2Cont → Cont| by coinduction-induction shows positivity issue.
 
 \section*{Higher-Order Containers}
 
-To continue the story of constructing strictly positive functor of functor categories, we define a notion of higher container |HCont : Ty → Set|, where |Ty| are just the types of simply typed $\lambda$-calculus with one base type |*| which represents |Set|. |HCont| is just a special case of
+To continue the story of constructing strictly positive functors of functor categories, we define a notion of higher container |HCont : Ty → Set|, where |Ty| are just the types of simply typed $\lambda$-calculus with one base type |*| which represents |Set|. |HCont| is just a special case of
 |Nf : Con → Ty → Set| where |Con| are the contexts of simply typed
 $\lambda$-calculus |HCont A = Nf • A|. We also use |Var : Con → Ty → Set|
-for the typed de Bruijn variables. For brevity, we do not present the full syntax. We remark that normal forms |Nf| are defined mutually with neutral terms and spines, following the standard presentation of normalization for simply typed $\lambda$-calculus\cite{keller2010normalization} .With this setting, it is easy to see that |Set ≅ HCont *|, |Cont ≅ HCont (* ⇒ *)| and |2Cont ≅ HCont ((* ⇒ *) ⇒ * ⇒ *)|. 
+for the typed de Bruijn variables. For brevity, we do not present the full syntax. We remark that normal forms |Nf| are defined mutually with neutral terms and spines, following the standard presentation of hereditary substitution for simply typed $\lambda$-calculus\cite{keller2010normalization} .With this setting, it is easy to see that |Set ≅ HCont *|, |Cont ≅ HCont (* ⇒ *)| and |2Cont ≅ HCont ((* ⇒ *) ⇒ * ⇒ *)|. 
 
 For the semantics, it seems there are two ways to go. A naive interpretation would be what we call hereditary functor, which is given by:
 
@@ -96,14 +96,14 @@ record Func (C : Cat X) (D : Cat Y) (F : X → Y) : Set
 \end{code}
 
 where |⟦_⟧T : Ty → Set| and |⟦_⟧C : Con → Set| are the interpretation
-of types and contexts in the intended model. However, there is an inconsistency with the model when constructing the general least-fixpoint. We construct a higher container as counterexample:
+of types and contexts in the intended model. However, we can show that there is no 3rd oder fixpoint operator. We construct a higher container as counterexample:
 
 \begin{code}
 C : HCont (((* ⇒ *) ⇒ *) ⇒ (* ⇒ *) ⇒ *)
 C F G = G (F G)
 \end{code}
 
-If an external fixpoint operator |3W : HCont (((* ⇒ *) ⇒ *) ⇒ (* ⇒ *) ⇒ *) → HCont ((* ⇒ *) ⇒ *)| exists, applying it to |C| leads to an internal fixpoint operator |intW : HCont ((* ⇒ *) ⇒ *)|. In the semantics, |intW| takes least-fixpoint of any functor, but we know such thing does not exist. To fix this issue, we can add fixpoint operators (|μ and ν|) to our syntax and define an anlternative semantics. The new model interprets higher containers |HCont (A ⇒ B)| as strictly positive functors |HCont A ⇒ HCont B|. The external fixpoint |3W| now gives rise to external |W|. Notice that this is also consistent with our first-order and second-order semantics.
+If an external fixpoint operator |3W : HCont (((* ⇒ *) ⇒ *) ⇒ (* ⇒ *) ⇒ *) → HCont ((* ⇒ *) ⇒ *)| exists, applying it to |C| leads to an internal fixpoint operator |intW : HCont ((* ⇒ *) ⇒ *)|. In the semantics, |intW| takes least fixpoint of any functor, but we know such thing does not exist. To fix this issue, we can add fixpoint operators (|μ and ν|) to our syntax and define an alternative semantics. The new model interprets higher containers |HCont (A ⇒ B)| as strictly positive functors |HCont A ⇒ HCont B|. The external fixpoint |3W| now gives rise to external |W|. Notice that this is also consistent with our first-order and second-order semantics.
 
 TODO : talk about coinductive definition
 
