@@ -360,7 +360,7 @@
 %
 \author{
   Thorsten Altenkirch \and
-  H{\aa}kan Gylterud \and
+  H{\aa}kon Robbestad Gylterud \and
   Zhili Tian
 }
 
@@ -386,7 +386,12 @@
 
 \maketitle
 
-Strictly positive types can be represented as containers \cite{containers}, that is \ensuremath{\Conid{S}\;\mathbin{:}\;\Conid{Set}} and a family of positions \ensuremath{\Conid{P}\;\mathbin{:}\;\Conid{S}\;\rightarrow\;\Conid{Set}} giving rise to a functor \ensuremath{\llbracket\;\Conid{S}\;\lhd\;\Conid{P}\;\rrbracket\;\mathbin{:}\;\Conid{Set}\;\Rightarrow\;\Conid{Set}}. Every container has an initial algebra (The W-type) and a terminal coalgebra (The M-type). However, there are types which don't fit into this scheme, an example is the type \ensuremath{\Conid{Bush}} which can be defined:
+Strictly positive types can be represented as containers \cite{containers},
+that is \ensuremath{\Conid{S}\;\mathbin{:}\;\Conid{Set}} and a family of positions \ensuremath{\Conid{P}\;\mathbin{:}\;\Conid{S}\;\rightarrow\;\Conid{Set}} giving rise to a
+functor \ensuremath{\llbracket\;\Conid{S}\;\lhd\;\Conid{P}\;\rrbracket\;\mathbin{:}\;\Conid{Set}\;\Rightarrow\;\Conid{Set}}. Every container has an initial algebra
+(The W-type) and a terminal coalgebra (The M-type). However, there are
+inductive/coinductive types which do not fit the scheme of W-types/M-types.
+An example of such a type is the inductive type \ensuremath{\Conid{Bush}}, defined as follows:
 
 \begin{hscode}\SaveRestoreHook
 \column{B}{@{}>{\hspre}l<{\hspost}@{}}%
@@ -402,24 +407,50 @@ Strictly positive types can be represented as containers \cite{containers}, that
 \ColumnHook
 \end{hscode}\resethooks
 
-Although \ensuremath{\Conid{Bush}\;\Conid{A}} is not a W-type, the type constructor \ensuremath{\Conid{Bush}} itself arises as the initial algebra of a functor on a functor category\cite{bird1998nested, bird1999generalised}. This motivates the development of a notion of containers at higher kinds capable of modelling strictly positive functors over containers.
+Even though \ensuremath{\Conid{Bush}\;\Conid{A}} is not a W-type, the type constructor \ensuremath{\Conid{Bush}} itself arises
+as the initial algebra of a functor on a functor category\cite{bird1998nested,
+bird1999generalised}. This motivates the development of a notion of containers
+at higher kinds (such as \ensuremath{(\Varid{*}\;\Rightarrow\;\Varid{*})\;\Rightarrow\;(\Varid{*}\;\Rightarrow\;\Varid{*})} or \ensuremath{(\Varid{*}\;\Rightarrow\;\Varid{*})\;\Rightarrow\;\Varid{*}}) capable of modelling
+strictly positive functors over containers.
 
 \section*{Second-Order Containers}
 
-We introduce a recursive syntax \ensuremath{\Varid{2}\;\Conid{Cont}} by extending the \ensuremath{\Conid{Cont}} with a family \ensuremath{\Conid{PF}\;\mathbin{:}\;\Conid{S}\;\rightarrow\;\Conid{Set}} of positions of \ensuremath{\Conid{F}} and a continuation \ensuremath{\Conid{RF}\;\mathbin{:}\;(\Varid{s}\;\mathbin{:}\;\Conid{S})\;\rightarrow\;\Conid{PF}\;\Varid{s}\;\rightarrow\;\Varid{2}\;\Conid{Cont}}. Those give rise to an endofunctor \ensuremath{\llbracket\;\Conid{S}\;\lhd\;\Conid{PX}\;\lhd\;\Conid{PF}\;\lhd\;\Conid{RF}\;\rrbracket\;\mathbin{:}\;\Conid{Cont}\;\Rightarrow\;\Conid{Cont}}. 
+We introduce a recursive syntax \ensuremath{\Varid{2}\;\Conid{Cont}} by extending the \ensuremath{\Conid{Cont}} with a family
+\ensuremath{\Conid{PF}\;\mathbin{:}\;\Conid{S}\;\rightarrow\;\Conid{Set}} of positions of \ensuremath{\Conid{F}} and an inductive continuation \ensuremath{\Conid{RF}\;\mathbin{:}\;(\Varid{s}\;\mathbin{:}\;\Conid{S})\;\rightarrow\;\Conid{PF}\;\Varid{s}\;\rightarrow\;\Varid{2}\;\Conid{Cont}}.
+These, second order containers are of kind \ensuremath{(\Varid{*}\;\Rightarrow\;\Varid{*})\;\Rightarrow\;(\Varid{*}\;\Rightarrow\;\Varid{*})}. Hence, each of them gives rise
+to an endofunctor \ensuremath{\llbracket\;\Conid{S}\;\lhd\;\Conid{PX}\;\lhd\;\Conid{PF}\;\lhd\;\Conid{RF}\;\rrbracket\;\mathbin{:}\;\Conid{Cont}\;\Rightarrow\;\Conid{Cont}}. 
 
-In the \ensuremath{\Conid{Bush}} example, the higher-order signature of such is given by \ensuremath{\Conid{H}\;\Conid{F}\;\Conid{X}\;\mathrel{=}\;\Varid{1}\;\Varid{+}\;\Conid{X}\;\times\;\Conid{F}\;(\Conid{F}\;\Conid{X})}. There is a sum involved and therefore two shapes (\ensuremath{\Conid{S}\;\mathrel{=}\;\Conid{Bool}}). The left shape is trivial with a constant, while in the right shape, there is one position of \ensuremath{\Conid{X}} (\ensuremath{\Conid{PX}\;\Varid{true}\;\mathrel{=}\;\top}) and one position of \ensuremath{\Conid{F}} (\ensuremath{\Conid{PF}\;\Varid{true}\;\mathrel{=}\;\top}). Finally, we need to model \ensuremath{\Conid{H'}\;\Conid{F}\;\Conid{X}\;\mathrel{=}\;\Conid{F}\;\Conid{X}} which procceds recursively (\ensuremath{\Conid{RF}\;\Varid{true}\;\Varid{tt}\;\mathrel{=}\;\Conid{H'}}).
+The \ensuremath{\Conid{Bush}} example can be specified using the following higher-order signature:
+\ensuremath{\Conid{H}\;\Conid{F}\;\Conid{X}\;\mathrel{=}\;\Varid{1}\;\Varid{+}\;\Conid{X}\;\times\;\Conid{F}\;(\Conid{F}\;\Conid{X})}. There is a sum involved and therefore two shapes
+(\ensuremath{\Conid{S}\;\mathrel{=}\;\Conid{Bool}}). The left shape is trivial with a constant, while in the right
+shape, there is one position of \ensuremath{\Conid{X}} (\ensuremath{\Conid{PX}\;\Varid{true}\;\mathrel{=}\;\top}) and one position of
+\ensuremath{\Conid{F}} (\ensuremath{\Conid{PF}\;\Varid{true}\;\mathrel{=}\;\top}). Finally, we need to model \ensuremath{\Conid{H'}\;\Conid{F}\;\Conid{X}\;\mathrel{=}\;\Conid{F}\;\Conid{X}} which proceeds
+recursively (\ensuremath{\Conid{RF}\;\Varid{true}\;\Varid{tt}\;\mathrel{=}\;\Conid{H'}}).
 
-We define a second-order least-fixpoint operator \ensuremath{\Varid{2}\;\Conid{W}\;\mathbin{:}\;\Varid{2}\;\Conid{Cont}\;\rightarrow\;\Conid{Cont}} by induction-recursion, thereby recovering \ensuremath{\Conid{Bush}} as the initial algebra of \ensuremath{\Conid{H}}. However, attempts to define a greatest fixpoint operator \ensuremath{\Varid{2}\;\Conid{M}\;\mathbin{:}\;\Varid{2}\;\Conid{Cont}\;\rightarrow\;\Conid{Cont}} by coinduction-induction shows positivity issue.
+We define a second-order least-fixpoint operator \ensuremath{\Varid{2}\;\Conid{W}\;\mathbin{:}\;\Varid{2}\;\Conid{Cont}\;\rightarrow\;\Conid{Cont}} by
+induction-recursion, thereby recovering \ensuremath{\Conid{Bush}} as the initial algebra of
+\ensuremath{\Conid{H}}. However, attempts to define a greatest fixpoint operator
+\ensuremath{\Varid{2}\;\Conid{M}\;\mathbin{:}\;\Varid{2}\;\Conid{Cont}\;\rightarrow\;\Conid{Cont}} by coinduction-induction shows positivity issue.
 
 \section*{Higher-Order Containers}
 
-To continue the story of constructing strictly positive functors of functor categories, we define a notion of higher container \ensuremath{\Conid{HCont}\;\mathbin{:}\;\Conid{Ty}\;\rightarrow\;\Conid{Set}}, where \ensuremath{\Conid{Ty}} are just the types of simply typed $\lambda$-calculus with one base type \ensuremath{\Varid{*}} which represents \ensuremath{\Conid{Set}}. \ensuremath{\Conid{HCont}} is just a special case of
+To continue the story of constructing strictly positive functors of functor
+categories, we define a notion of higher container \ensuremath{\Conid{HCont}\;\mathbin{:}\;\Conid{Ty}\;\rightarrow\;\Conid{Set}}, where
+\ensuremath{\Conid{Ty}} are just the types of simply typed $\lambda$-calculus with one base type
+\ensuremath{\Varid{*}} which represents \ensuremath{\Conid{Set}}. \ensuremath{\Conid{HCont}} is just a special case of
 \ensuremath{\Conid{Nf}\;\mathbin{:}\;\Conid{Con}\;\rightarrow\;\Conid{Ty}\;\rightarrow\;\Conid{Set}} where \ensuremath{\Conid{Con}} are the contexts of simply typed
 $\lambda$-calculus \ensuremath{\Conid{HCont}\;\Conid{A}\;\mathrel{=}\;\Conid{Nf}\;\bullet\;\Conid{A}}. We also use \ensuremath{\Conid{Var}\;\mathbin{:}\;\Conid{Con}\;\rightarrow\;\Conid{Ty}\;\rightarrow\;\Conid{Set}}
-for the typed de Bruijn variables. For brevity, we do not present the full syntax. We remark that normal forms \ensuremath{\Conid{Nf}} are defined mutually with neutral terms and spines, following the standard presentation of hereditary substitution for simply typed $\lambda$-calculus\cite{keller2010normalization} .With this setting, it is easy to see that \ensuremath{\Conid{Set}\;\cong\;\Conid{HCont}\;\Varid{*}}, \ensuremath{\Conid{Cont}\;\cong\;\Conid{HCont}\;(\Varid{*}\;\Rightarrow\;\Varid{*})} and \ensuremath{\Varid{2}\;\Conid{Cont}\;\cong\;\Conid{HCont}\;((\Varid{*}\;\Rightarrow\;\Varid{*})\;\Rightarrow\;\Varid{*}\;\Rightarrow\;\Varid{*})}. 
+for the typed de Bruijn variables. For brevity, we do not present the full
+syntax. We remark that normal forms \ensuremath{\Conid{Nf}} are defined mutually with neutral terms
+and spines, following the standard presentation of hereditary substitution for
+simply typed $\lambda$-calculus\cite{keller2010normalization}. With this setting,
+it is easy to see that \ensuremath{\Conid{Set}\;\cong\;\Conid{HCont}\;\Varid{*}}, \ensuremath{\Conid{Cont}\;\cong\;\Conid{HCont}\;(\Varid{*}\;\Rightarrow\;\Varid{*})} and
+\ensuremath{\Varid{2}\;\Conid{Cont}\;\cong\;\Conid{HCont}\;((\Varid{*}\;\Rightarrow\;\Varid{*})\;\Rightarrow\;\Varid{*}\;\Rightarrow\;\Varid{*})}. 
 
-For the semantics, it seems there are two ways to go. A naive interpretation would be what we call hereditary functor, which is given by:
+For the semantics, it seems there are two ways to go: A naive interpretation
+using what we have called a hereditary functor, built iteratively on sets, and
+a more principled semantics restricting the domain in each iteration to containers.
+The naive interpretation is specified by:
 
 \begin{hscode}\SaveRestoreHook
 \column{B}{@{}>{\hspre}l<{\hspost}@{}}%
@@ -446,7 +477,9 @@ For the semantics, it seems there are two ways to go. A naive interpretation wou
 \end{hscode}\resethooks
 
 where \ensuremath{\llbracket\_\rrbracket_{\mathrm{T}}\;\mathbin{:}\;\Conid{Ty}\;\rightarrow\;\Conid{Set}} and \ensuremath{\llbracket\_\rrbracket_{\mathrm{C}}\;\mathbin{:}\;\Conid{Con}\;\rightarrow\;\Conid{Set}} are the interpretation
-of types and contexts in the intended model. However, we can show that there is no 3rd oder fixpoint operator. We construct a higher container as counterexample:
+of types and contexts in the intended model. However, using this semantics
+we can shot that there is no third order fixed-point operators, \ensuremath{\Varid{3}\;\Conid{W}}.
+Consider the following higher order container:
 
 \begin{hscode}\SaveRestoreHook
 \column{B}{@{}>{\hspre}l<{\hspost}@{}}%
@@ -457,11 +490,25 @@ of types and contexts in the intended model. However, we can show that there is 
 \ColumnHook
 \end{hscode}\resethooks
 
-If an external fixpoint operator \ensuremath{\Varid{3}\;\Conid{W}\;\mathbin{:}\;\Conid{HCont}\;(((\Varid{*}\;\Rightarrow\;\Varid{*})\;\Rightarrow\;\Varid{*})\;\Rightarrow\;(\Varid{*}\;\Rightarrow\;\Varid{*})\;\Rightarrow\;\Varid{*})\;\rightarrow\;\Conid{HCont}\;((\Varid{*}\;\Rightarrow\;\Varid{*})\;\Rightarrow\;\Varid{*})} exists, applying it to \ensuremath{\Conid{C}} leads to an internal fixpoint operator \ensuremath{\Varid{intW}\;\mathbin{:}\;\Conid{HCont}\;((\Varid{*}\;\Rightarrow\;\Varid{*})\;\Rightarrow\;\Varid{*})}. In the semantics, \ensuremath{\Varid{intW}} takes least fixpoint of any functor, but we know such thing does not exist. To fix this issue, we can add fixpoint operators (\ensuremath{\mu\;\Varid{and}\;\nu}) to our syntax and define an alternative semantics. The new model interprets higher containers \ensuremath{\Conid{HCont}\;(\Conid{A}\;\Rightarrow\;\Conid{B})} as strictly positive functors \ensuremath{\Conid{HCont}\;\Conid{A}\;\Rightarrow\;\Conid{HCont}\;\Conid{B}}. The external fixpoint \ensuremath{\Varid{3}\;\Conid{W}} now gives rise to external \ensuremath{\Conid{W}}. Notice that this is also consistent with our first-order and second-order semantics.
+If an external fixpoint operator \ensuremath{\Varid{3}\;\Conid{W}\;\mathbin{:}\;\Conid{HCont}\;(((\Varid{*}\;\Rightarrow\;\Varid{*})\;\Rightarrow\;\Varid{*})\;\Rightarrow\;(\Varid{*}\;\Rightarrow\;\Varid{*})\;\Rightarrow\;\Varid{*})\;\rightarrow\;\Conid{HCont}\;((\Varid{*}\;\Rightarrow\;\Varid{*})\;\Rightarrow\;\Varid{*})}
+exists, applying it to \ensuremath{\Conid{C}} leads to an internal fixpoint operator \ensuremath{\Varid{intW}\;\mathbin{:}\;\Conid{HCont}\;((\Varid{*}\;\Rightarrow\;\Varid{*})\;\Rightarrow\;\Varid{*})}.
+Accordint to the semantics, \ensuremath{\Varid{intW}} gives a least fixpoint of any functor, but we know such thing does not
+exist.
 
-TODO : talk about coinductive definition
+One approach to fixing this problem, is to add fixpoint operators (\ensuremath{\mu\;\Varid{and}\;\nu}) to our syntax and define
+an alternative semantics. The alternative we hanve in mind interprets higher containers \ensuremath{\Conid{HCont}\;(\Conid{A}\;\Rightarrow\;\Conid{B})} as strictly
+positive functors \ensuremath{\Conid{HCont}\;\Conid{A}\;\Rightarrow\;\Conid{HCont}\;\Conid{B}}. The external fixpoint \ensuremath{\Varid{3}\;\Conid{W}} now gives rise to external
+\ensuremath{\Conid{W}}. Note that this is also consistent with our first-order and second-order semantics.
 
-As a secondary contribution, we show higher containers are normalized $\lambda$-terms closed under arbitrary products and coproducts (maybe also under least-fixpoint and greatest-fixpoint). That is we can define a syntax of \ensuremath{\Conid{Tm}}:
+Instead of adding the fixed point operators to the syntax explicitly, we could also add fixed-points
+implicitly by passing to a coinductive syntax with infinite terms. The semantics would then
+have to choose wether to interpret these as inductive or coinductive fixed points.
+
+\section*{Higher containers as normalized $\lambda$-terms}
+
+As a secondary contribution, we show higher containers are normalized $\lambda$-terms
+closed under arbitrary products and coproducts (maybe also under least-fixpoint and
+greatest-fixpoint). That is we can define a syntax of \ensuremath{\Conid{Tm}}:
 
 \begin{hscode}\SaveRestoreHook
 \column{B}{@{}>{\hspre}l<{\hspost}@{}}%
@@ -486,7 +533,11 @@ As a secondary contribution, we show higher containers are normalized $\lambda$-
 \ColumnHook
 \end{hscode}\resethooks
 
-together with a normalization function \ensuremath{\Varid{nf}\;\mathbin{:}\;\Conid{Tm}\;\Gamma\;\Conid{A}\;\rightarrow\;\Conid{Nf}\;\Gamma\;\Conid{A}}. Furthermore, we show \ensuremath{(\Conid{Con,}\;\Conid{Tms,}\;\Conid{Ty,}\;\Conid{Tm})} is a model of STLC (simply-typed $\lambda$-calculus), where \ensuremath{\Conid{Tms}} is a list of \ensuremath{\Conid{Tm}}. Similarly, we also hope to prove that the normalized model \ensuremath{(\Conid{Con,}\;\Conid{Nfs,}\;\Conid{Ty,}\;\Conid{Nf})} is also a STLC, where \ensuremath{\Conid{Nfs}} is a list of \ensuremath{\Conid{Nf}}.
+together with a normalization function \ensuremath{\Varid{nf}\;\mathbin{:}\;\Conid{Tm}\;\Gamma\;\Conid{A}\;\rightarrow\;\Conid{Nf}\;\Gamma\;\Conid{A}}.
+Furthermore, we show \ensuremath{(\Conid{Con,}\;\Conid{Tms,}\;\Conid{Ty,}\;\Conid{Tm})} is a model of simply-typed
+$\lambda$-calculus (STLC), where \ensuremath{\Conid{Tms}} is a list of \ensuremath{\Conid{Tm}}. Similarly, we also hope
+to prove that the normalized model \ensuremath{(\Conid{Con,}\;\Conid{Nfs,}\;\Conid{Ty,}\;\Conid{Nf})} is also a STLC, where
+\ensuremath{\Conid{Nfs}} is a list of \ensuremath{\Conid{Nf}}.
 
 \bibliographystyle{plain}
 \bibliography{references}
