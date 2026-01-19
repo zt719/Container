@@ -332,6 +332,7 @@
 
 
 
+
 \usepackage{amssymb}
 
 % use this if you have a long article and want to create an index
@@ -358,15 +359,18 @@
 % Authors are joined by \and. Their affiliations are given by \inst, which indexes
 % into the list defined using \institute
 %
+
 \author{
-  Thorsten Altenkirch \and
-  H{\aa}kon Robbestad Gylterud \and
-  Zhili Tian
+  Thorsten Altenkirch\inst{1} \and
+  H{\aa}kon Robbestad Gylterud\inst{2} \and
+  Zhili Tian\inst{1}
 }
 
 \institute{
-  School of Computer Science, University of Nottingham, UK\\
-  \email{\{psztxa,psxzt8\}@nottingham.ac.uk}
+  $^{1}$School of Computer Science, University of Nottingham\\
+  \email{\{psztxa,psxzt8\}@nottingham.ac.uk}\\
+  $^{2}$Department of Informatics, University of Bergen\\
+  \email{hakon.gylterud@uib.no}
 }
 
 %  \authorrunning{} has to be set for the shorter version of the authors' names;
@@ -415,8 +419,8 @@ strictly positive functors over containers.
 
 \section*{Second-Order Containers}
 
-We introduce a recursive syntax \ensuremath{\Varid{2}\;\Conid{Cont}} by extending the \ensuremath{\Conid{Cont}} with a family
-\ensuremath{\Conid{PF}\;\mathbin{:}\;\Conid{S}\;\rightarrow\;\Conid{Set}} of positions of \ensuremath{\Conid{F}} and an inductive continuation \ensuremath{\Conid{RF}\;\mathbin{:}\;(\Varid{s}\;\mathbin{:}\;\Conid{S})\;\rightarrow\;\Conid{PF}\;\Varid{s}\;\rightarrow\;\Varid{2}\;\Conid{Cont}}.
+We introduce a recursive syntax \ensuremath{\Conid{Cont}^{2}} by extending the \ensuremath{\Conid{Cont}} with a family
+\ensuremath{\Conid{PF}\;\mathbin{:}\;\Conid{S}\;\rightarrow\;\Conid{Set}} of positions of \ensuremath{\Conid{F}} and an inductive continuation \ensuremath{\Conid{RF}\;\mathbin{:}\;(\Varid{s}\;\mathbin{:}\;\Conid{S})\;\rightarrow\;\Conid{PF}\;\Varid{s}\;\rightarrow\;\Conid{Cont}^{2}}.
 These, second order containers are of kind \ensuremath{(\Varid{*}\;\Rightarrow\;\Varid{*})\;\Rightarrow\;(\Varid{*}\;\Rightarrow\;\Varid{*})}. Hence, each of them gives rise
 to an endofunctor \ensuremath{\llbracket\;\Conid{S}\;\lhd\;\Conid{PX}\;\lhd\;\Conid{PF}\;\lhd\;\Conid{RF}\;\rrbracket\;\mathbin{:}\;\Conid{Cont}\;\Rightarrow\;\Conid{Cont}}. 
 
@@ -427,10 +431,10 @@ shape, there is one position of \ensuremath{\Conid{X}} (\ensuremath{\Conid{PX}\;
 \ensuremath{\Conid{F}} (\ensuremath{\Conid{PF}\;\Varid{true}\;\mathrel{=}\;\top}). Finally, we need to model \ensuremath{\Conid{H'}\;\Conid{F}\;\Conid{X}\;\mathrel{=}\;\Conid{F}\;\Conid{X}} which proceeds
 recursively (\ensuremath{\Conid{RF}\;\Varid{true}\;\Varid{tt}\;\mathrel{=}\;\Conid{H'}}).
 
-We define a second-order least-fixpoint operator \ensuremath{\Varid{2}\;\Conid{W}\;\mathbin{:}\;\Varid{2}\;\Conid{Cont}\;\rightarrow\;\Conid{Cont}} by
+We define a second-order least-fixpoint operator \ensuremath{\Conid{W}^{2}\;\mathbin{:}\;\Conid{Cont}^{2}\;\rightarrow\;\Conid{Cont}} by
 induction-recursion, thereby recovering \ensuremath{\Conid{Bush}} as the initial algebra of
 \ensuremath{\Conid{H}}. However, attempts to define a greatest fixpoint operator
-\ensuremath{\Varid{2}\;\Conid{M}\;\mathbin{:}\;\Varid{2}\;\Conid{Cont}\;\rightarrow\;\Conid{Cont}} by coinduction-induction shows positivity issue.
+\ensuremath{\Conid{M}^{2}\;\mathbin{:}\;\Conid{Cont}^{2}\;\rightarrow\;\Conid{Cont}} by coinduction-induction shows positivity issue.
 
 \section*{Higher-Order Containers}
 
@@ -445,7 +449,7 @@ syntax. We remark that normal forms \ensuremath{\Conid{Nf}} are defined mutually
 and spines, following the standard presentation of hereditary substitution for
 simply typed $\lambda$-calculus\cite{keller2010normalization}. With this setting,
 it is easy to see that \ensuremath{\Conid{Set}\;\cong\;\Conid{HCont}\;\Varid{*}}, \ensuremath{\Conid{Cont}\;\cong\;\Conid{HCont}\;(\Varid{*}\;\Rightarrow\;\Varid{*})} and
-\ensuremath{\Varid{2}\;\Conid{Cont}\;\cong\;\Conid{HCont}\;((\Varid{*}\;\Rightarrow\;\Varid{*})\;\Rightarrow\;\Varid{*}\;\Rightarrow\;\Varid{*})}. 
+\ensuremath{\Conid{Cont}^{2}\;\cong\;\Conid{HCont}\;((\Varid{*}\;\Rightarrow\;\Varid{*})\;\Rightarrow\;\Varid{*}\;\Rightarrow\;\Varid{*})}. 
 
 For the semantics, it seems there are two ways to go: A naive interpretation
 using what we have called a hereditary functor, built iteratively on sets, and
@@ -478,7 +482,7 @@ The naive interpretation is specified by:
 
 where \ensuremath{\llbracket\_\rrbracket_{\mathrm{T}}\;\mathbin{:}\;\Conid{Ty}\;\rightarrow\;\Conid{Set}} and \ensuremath{\llbracket\_\rrbracket_{\mathrm{C}}\;\mathbin{:}\;\Conid{Con}\;\rightarrow\;\Conid{Set}} are the interpretation
 of types and contexts in the intended model. However, using this semantics
-we can shot that there is no third order fixed-point operators, \ensuremath{\Varid{3}\;\Conid{W}}.
+we can shot that there is no third order fixed-point operators, \ensuremath{\Conid{W}^{3}}.
 Consider the following higher order container:
 
 \begin{hscode}\SaveRestoreHook
@@ -490,15 +494,14 @@ Consider the following higher order container:
 \ColumnHook
 \end{hscode}\resethooks
 
-If an external fixpoint operator \ensuremath{\Varid{3}\;\Conid{W}\;\mathbin{:}\;\Conid{HCont}\;(((\Varid{*}\;\Rightarrow\;\Varid{*})\;\Rightarrow\;\Varid{*})\;\Rightarrow\;(\Varid{*}\;\Rightarrow\;\Varid{*})\;\Rightarrow\;\Varid{*})\;\rightarrow\;\Conid{HCont}\;((\Varid{*}\;\Rightarrow\;\Varid{*})\;\Rightarrow\;\Varid{*})}
+If an external fixpoint operator \ensuremath{\Conid{W}^{3}\;\mathbin{:}\;\Conid{HCont}\;(((\Varid{*}\;\Rightarrow\;\Varid{*})\;\Rightarrow\;\Varid{*})\;\Rightarrow\;(\Varid{*}\;\Rightarrow\;\Varid{*})\;\Rightarrow\;\Varid{*})\;\rightarrow\;\Conid{HCont}\;((\Varid{*}\;\Rightarrow\;\Varid{*})\;\Rightarrow\;\Varid{*})}
 exists, applying it to \ensuremath{\Conid{C}} leads to an internal fixpoint operator \ensuremath{\Varid{intW}\;\mathbin{:}\;\Conid{HCont}\;((\Varid{*}\;\Rightarrow\;\Varid{*})\;\Rightarrow\;\Varid{*})}.
-Accordint to the semantics, \ensuremath{\Varid{intW}} gives a least fixpoint of any functor, but we know such thing does not
+According to the semantics, \ensuremath{\Varid{intW}\;\mathbin{:}\;(\Conid{Set}\;\Rightarrow\;\Conid{Set})\;\Rightarrow\;\Conid{Set}} gives a least fixpoint of any functor, but we know such thing does not
 exist.
 
 One approach to fixing this problem, is to add fixpoint operators (\ensuremath{\mu\;\Varid{and}\;\nu}) to our syntax and define
-an alternative semantics. The alternative we hanve in mind interprets higher containers \ensuremath{\Conid{HCont}\;(\Conid{A}\;\Rightarrow\;\Conid{B})} as strictly
-positive functors \ensuremath{\Conid{HCont}\;\Conid{A}\;\Rightarrow\;\Conid{HCont}\;\Conid{B}}. The external fixpoint \ensuremath{\Varid{3}\;\Conid{W}} now gives rise to external
-\ensuremath{\Conid{W}}. Note that this is also consistent with our first-order and second-order semantics.
+an alternative semantics. The alternative we have in mind interprets higher containers \ensuremath{\Conid{HCont}\;(\Conid{A}\;\Rightarrow\;\Conid{B})} as functors \ensuremath{\Conid{HCont}\;\Conid{A}\;\Rightarrow\;\Conid{HCont}\;\Conid{B}}. Applying the external fixpoint \ensuremath{\Conid{W}^{3}} to \ensuremath{\Conid{C}} now gives rise to external
+\ensuremath{\Varid{extW}\;\mathbin{:}\;\Conid{HCont}\;((\Varid{*}\;\Rightarrow\;\Varid{*})\;\Rightarrow\;\Varid{*})}, which its semantics corresponds to exactly the usual fixed-point operator \ensuremath{\Conid{W}\;\mathbin{:}\;\Conid{Cont}\;\Rightarrow\;\Conid{Set}}.
 
 Instead of adding the fixed point operators to the syntax explicitly, we could also add fixed-points
 implicitly by passing to a coinductive syntax with infinite terms. The semantics would then
@@ -506,37 +509,13 @@ have to choose wether to interpret these as inductive or coinductive fixed point
 
 \section*{Higher containers as normalized $\lambda$-terms}
 
-As a secondary contribution, we show higher containers are normalized $\lambda$-terms
+Furthermore, we show higher containers are normalized $\lambda$-terms
 closed under arbitrary products and coproducts (maybe also under least-fixpoint and
-greatest-fixpoint). That is we can define a syntax of \ensuremath{\Conid{Tm}}:
+greatest-fixpoint), together with a normalization function \ensuremath{\Varid{nf}\;\mathbin{:}\;\Conid{Tm}\;\Gamma\;\Conid{A}\;\rightarrow\;\Conid{Nf}\;\Gamma\;\Conid{A}}.
 
-\begin{hscode}\SaveRestoreHook
-\column{B}{@{}>{\hspre}l<{\hspost}@{}}%
-\column{3}{@{}>{\hspre}l<{\hspost}@{}}%
-\column{E}{@{}>{\hspre}l<{\hspost}@{}}%
-\>[B]{}\Keyword{data}\;\Conid{Tm}\;\mathbin{:}\;\Conid{Con}\;\rightarrow\;\Conid{Ty}\;\rightarrow\;\mathbf{Set}_1\;\Keyword{where}{}\<[E]%
-\\
-\>[B]{}\hsindent{3}{}\<[3]%
-\>[3]{}\Varid{var}\;\mathbin{:}\;\Conid{Var}\;\Gamma\;\Conid{A}\;\rightarrow\;\Conid{Tm}\;\Gamma\;\Conid{A}{}\<[E]%
-\\
-\>[B]{}\hsindent{3}{}\<[3]%
-\>[3]{}\Varid{lam}\;\mathbin{:}\;\Conid{Tm}\;(\Gamma\;\rhd\;\Conid{A})\;\Conid{B}\;\rightarrow\;\Conid{Tm}\;\Gamma\;(\Conid{A}\;\Rightarrow\;\Conid{B}){}\<[E]%
-\\
-\>[B]{}\hsindent{3}{}\<[3]%
-\>[3]{}\Varid{app}\;\mathbin{:}\;\Conid{Tm}\;\Gamma\;(\Conid{A}\;\Rightarrow\;\Conid{B})\;\rightarrow\;\Conid{Tm}\;\Gamma\;\Conid{A}\;\rightarrow\;\Conid{Tm}\;\Gamma\;\Conid{B}{}\<[E]%
-\\
-\>[B]{}\hsindent{3}{}\<[3]%
-\>[3]{}\Pi\;\mathbin{:}\;(\Conid{I}\;\mathbin{:}\;\Conid{Set})\;\rightarrow\;(\Conid{I}\;\rightarrow\;\Conid{Tm}\;\Gamma\;\Conid{A})\;\rightarrow\;\Conid{Tm}\;\Gamma\;\Conid{A}{}\<[E]%
-\\
-\>[B]{}\hsindent{3}{}\<[3]%
-\>[3]{}\Sigma\;\mathbin{:}\;(\Conid{I}\;\mathbin{:}\;\Conid{Set})\;\rightarrow\;(\Conid{I}\;\rightarrow\;\Conid{Tm}\;\Gamma\;\Conid{A})\;\rightarrow\;\Conid{Tm}\;\Gamma\;\Conid{A}{}\<[E]%
-\ColumnHook
-\end{hscode}\resethooks
-
-together with a normalization function \ensuremath{\Varid{nf}\;\mathbin{:}\;\Conid{Tm}\;\Gamma\;\Conid{A}\;\rightarrow\;\Conid{Nf}\;\Gamma\;\Conid{A}}.
-Furthermore, we show \ensuremath{(\Conid{Con,}\;\Conid{Tms,}\;\Conid{Ty,}\;\Conid{Tm})} is a model of simply-typed
-$\lambda$-calculus (STLC), where \ensuremath{\Conid{Tms}} is a list of \ensuremath{\Conid{Tm}}. Similarly, we also hope
-to prove that the normalized model \ensuremath{(\Conid{Con,}\;\Conid{Nfs,}\;\Conid{Ty,}\;\Conid{Nf})} is also a STLC, where
+We also show \ensuremath{(\Conid{Con,}\;\Conid{Tms,}\;\Conid{Ty,}\;\Conid{Tm})} is a model of simply-typed
+$\lambda$-calculus (STLC), where \ensuremath{\Conid{Tms}} is a list of \ensuremath{\Conid{Tm}}. Similarly, we hope
+to prove that the normalized model \ensuremath{(\Conid{Con,}\;\Conid{Nfs,}\;\Conid{Ty,}\;\Conid{Nf})} is also a model of STLC, where
 \ensuremath{\Conid{Nfs}} is a list of \ensuremath{\Conid{Nf}}.
 
 \bibliographystyle{plain}

@@ -166,3 +166,8 @@
 %format ⟦_⟧sp = "\llbracket\_\rrbracket_{\mathrm{sp}}"
 
 %format s⊥ = "\mathrm{s}_\bot"
+
+%format Cont² = "\Conid{Cont}^{2}"
+%format W² = "\Conid{W}^{2}"
+%format M² = "\Conid{M}^{2}"
+%format W³ = "\Conid{W}^{3}"

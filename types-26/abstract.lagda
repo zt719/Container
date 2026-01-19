@@ -28,15 +28,18 @@
 % Authors are joined by \and. Their affiliations are given by \inst, which indexes
 % into the list defined using \institute
 %
+
 \author{
-  Thorsten Altenkirch \and
-  H{\aa}kon Robbestad Gylterud \and
-  Zhili Tian
+  Thorsten Altenkirch\inst{1} \and
+  H{\aa}kon Robbestad Gylterud\inst{2} \and
+  Zhili Tian\inst{1}
 }
 
 \institute{
-  School of Computer Science, University of Nottingham, UK\\
-  \email{\{psztxa,psxzt8\}@@nottingham.ac.uk}
+  $^{1}$School of Computer Science, University of Nottingham\\
+  \email{\{psztxa,psxzt8\}@@nottingham.ac.uk}\\
+  $^{2}$Department of Informatics, University of Bergen\\
+  \email{hakon.gylterud@@uib.no}
 }
 
 %  \authorrunning{} has to be set for the shorter version of the authors' names;
@@ -77,8 +80,8 @@ strictly positive functors over containers.
 
 \section*{Second-Order Containers}
 
-We introduce a recursive syntax |2Cont| by extending the |Cont| with a family
-|PF : S → Set| of positions of |F| and an inductive continuation |RF : (s : S) → PF s → 2Cont|.
+We introduce a recursive syntax |Cont²| by extending the |Cont| with a family
+|PF : S → Set| of positions of |F| and an inductive continuation |RF : (s : S) → PF s → Cont²|.
 These, second order containers are of kind |(* ⇒ *) ⇒ (* ⇒ *)|. Hence, each of them gives rise
 to an endofunctor |⟦ S ◁ PX ◁ PF ◁ RF ⟧ : Cont ⇒ Cont|. 
 
@@ -89,10 +92,10 @@ shape, there is one position of |X| (|PX true = ⊤|) and one position of
 |F| (|PF true = ⊤|). Finally, we need to model |H' F X = F X| which proceeds
 recursively (|RF true tt = H'|).
 
-We define a second-order least-fixpoint operator |2W : 2Cont → Cont| by
+We define a second-order least-fixpoint operator |W² : Cont² → Cont| by
 induction-recursion, thereby recovering |Bush| as the initial algebra of
 |H|. However, attempts to define a greatest fixpoint operator
-|2M : 2Cont → Cont| by coinduction-induction shows positivity issue.
+|M² : Cont² → Cont| by coinduction-induction shows positivity issue.
 
 \section*{Higher-Order Containers}
 
@@ -107,7 +110,7 @@ syntax. We remark that normal forms |Nf| are defined mutually with neutral terms
 and spines, following the standard presentation of hereditary substitution for
 simply typed $\lambda$-calculus\cite{keller2010normalization}. With this setting,
 it is easy to see that |Set ≅ HCont *|, |Cont ≅ HCont (* ⇒ *)| and
-|2Cont ≅ HCont ((* ⇒ *) ⇒ * ⇒ *)|. 
+|Cont² ≅ HCont ((* ⇒ *) ⇒ * ⇒ *)|. 
 
 For the semantics, it seems there are two ways to go: A naive interpretation
 using what we have called a hereditary functor, built iteratively on sets, and
@@ -128,7 +131,7 @@ record Func (C : Cat X) (D : Cat Y) (F : X → Y) : Set
 
 where |⟦_⟧T : Ty → Set| and |⟦_⟧C : Con → Set| are the interpretation
 of types and contexts in the intended model. However, using this semantics
-we can shot that there is no third order fixed-point operators, |3W|.
+we can shot that there is no third order fixed-point operators, |W³|.
 Consider the following higher order container:
 
 \begin{code}
@@ -136,15 +139,14 @@ C : HCont (((* ⇒ *) ⇒ *) ⇒ (* ⇒ *) ⇒ *)
 C F G = G (F G)
 \end{code}
 
-If an external fixpoint operator |3W : HCont (((* ⇒ *) ⇒ *) ⇒ (* ⇒ *) ⇒ *) → HCont ((* ⇒ *) ⇒ *)|
+If an external fixpoint operator |W³ : HCont (((* ⇒ *) ⇒ *) ⇒ (* ⇒ *) ⇒ *) → HCont ((* ⇒ *) ⇒ *)|
 exists, applying it to |C| leads to an internal fixpoint operator |intW : HCont ((* ⇒ *) ⇒ *)|.
-Accordint to the semantics, |intW| gives a least fixpoint of any functor, but we know such thing does not
+According to the semantics, |intW : (Set ⇒ Set) ⇒ Set| gives a least fixpoint of any functor, but we know such thing does not
 exist.
 
 One approach to fixing this problem, is to add fixpoint operators (|μ and ν|) to our syntax and define
-an alternative semantics. The alternative we hanve in mind interprets higher containers |HCont (A ⇒ B)| as strictly
-positive functors |HCont A ⇒ HCont B|. The external fixpoint |3W| now gives rise to external
-|W|. Note that this is also consistent with our first-order and second-order semantics.
+an alternative semantics. The alternative we have in mind interprets higher containers |HCont (A ⇒ B)| as functors |HCont A ⇒ HCont B|. Applying the external fixpoint |W³| to |C| now gives rise to external
+|extW : HCont ((* ⇒ *) ⇒ *)|, which its semantics corresponds to exactly the usual fixed-point operator |W : Cont ⇒ Set|.
 
 Instead of adding the fixed point operators to the syntax explicitly, we could also add fixed-points
 implicitly by passing to a coinductive syntax with infinite terms. The semantics would then
@@ -152,23 +154,13 @@ have to choose wether to interpret these as inductive or coinductive fixed point
 
 \section*{Higher containers as normalized $\lambda$-terms}
 
-As a secondary contribution, we show higher containers are normalized $\lambda$-terms
+Furthermore, we show higher containers are normalized $\lambda$-terms
 closed under arbitrary products and coproducts (maybe also under least-fixpoint and
-greatest-fixpoint). That is we can define a syntax of |Tm|:
+greatest-fixpoint), together with a normalization function |nf : Tm Γ A → Nf Γ A|.
 
-\begin{code}
-data Tm : Con → Ty → Set₁ where
-  var : Var Γ A → Tm Γ A
-  lam : Tm (Γ ▹ A) B → Tm Γ (A ⇒ B)
-  app : Tm Γ (A ⇒ B) → Tm Γ A → Tm Γ B
-  Π : (I : Set) → (I → Tm Γ A) → Tm Γ A
-  Σ : (I : Set) → (I → Tm Γ A) → Tm Γ A
-\end{code}
-
-together with a normalization function |nf : Tm Γ A → Nf Γ A|.
-Furthermore, we show |(Con, Tms, Ty, Tm)| is a model of simply-typed
-$\lambda$-calculus (STLC), where |Tms| is a list of |Tm|. Similarly, we also hope
-to prove that the normalized model |(Con, Nfs, Ty, Nf)| is also a STLC, where
+We also show |(Con, Tms, Ty, Tm)| is a model of simply-typed
+$\lambda$-calculus (STLC), where |Tms| is a list of |Tm|. Similarly, we hope
+to prove that the normalized model |(Con, Nfs, Ty, Nf)| is also a model of STLC, where
 |Nfs| is a list of |Nf|.
 
 \bibliographystyle{plain}
