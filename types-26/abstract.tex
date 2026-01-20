@@ -434,7 +434,7 @@ recursively (\ensuremath{\Conid{RF}\;\Varid{true}\;\Varid{tt}\;\mathrel{=}\;\Con
 We define a second-order least-fixpoint operator \ensuremath{\Conid{W}^{2}\;\mathbin{:}\;\Conid{Cont}^{2}\;\rightarrow\;\Conid{Cont}} by
 induction-recursion, thereby recovering \ensuremath{\Conid{Bush}} as the initial algebra of
 \ensuremath{\Conid{H}}. However, attempts to define a greatest fixpoint operator
-\ensuremath{\Conid{M}^{2}\;\mathbin{:}\;\Conid{Cont}^{2}\;\rightarrow\;\Conid{Cont}} by coinduction-induction shows positivity issue.
+\ensuremath{\Conid{M}^{2}\;\mathbin{:}\;\Conid{Cont}^{2}\;\rightarrow\;\Conid{Cont}} by coinduction-induction shows a positivity issue.
 
 \section*{Higher-Order Containers}
 
@@ -483,8 +483,8 @@ The naive interpretation is specified by:
 where \ensuremath{\llbracket\_\rrbracket_{\mathrm{T}}\;\mathbin{:}\;\Conid{Ty}\;\rightarrow\;\Conid{Set}} and \ensuremath{\llbracket\_\rrbracket_{\mathrm{C}}\;\mathbin{:}\;\Conid{Con}\;\rightarrow\;\Conid{Set}} are the interpretation
 of types and contexts in the intended model. However, using this semantics
 we can shot that there is no third order fixed-point operators, \ensuremath{\Conid{W}^{3}}.
-Consider the following higher order container:
-
+Consider the following higher order container
+\footnote{This is the corresponding \ensuremath{\lambda}-term, the actual encoding is not very readable.}:
 \begin{hscode}\SaveRestoreHook
 \column{B}{@{}>{\hspre}l<{\hspost}@{}}%
 \column{E}{@{}>{\hspre}l<{\hspost}@{}}%
@@ -518,6 +518,7 @@ $\lambda$-calculus (STLC), where \ensuremath{\Conid{Tms}} is a list of \ensurema
 to prove that the normalized model \ensuremath{(\Conid{Con,}\;\Conid{Nfs,}\;\Conid{Ty,}\;\Conid{Nf})} is also a model of STLC, where
 \ensuremath{\Conid{Nfs}} is a list of \ensuremath{\Conid{Nf}}.
 
+\newpage
 \bibliographystyle{plain}
 \bibliography{references}
 

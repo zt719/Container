@@ -95,7 +95,7 @@ recursively (|RF true tt = H'|).
 We define a second-order least-fixpoint operator |W² : Cont² → Cont| by
 induction-recursion, thereby recovering |Bush| as the initial algebra of
 |H|. However, attempts to define a greatest fixpoint operator
-|M² : Cont² → Cont| by coinduction-induction shows positivity issue.
+|M² : Cont² → Cont| by coinduction-induction show a positivity issue.
 
 \section*{Higher-Order Containers}
 
@@ -132,8 +132,8 @@ record Func (C : Cat X) (D : Cat Y) (F : X → Y) : Set
 where |⟦_⟧T : Ty → Set| and |⟦_⟧C : Con → Set| are the interpretation
 of types and contexts in the intended model. However, using this semantics
 we can shot that there is no third order fixed-point operators, |W³|.
-Consider the following higher order container:
-
+Consider the following higher order container
+\footnote{This is the corresponding |λ|-term, the actual encoding is not very readable.}:
 \begin{code}
 C : HCont (((* ⇒ *) ⇒ *) ⇒ (* ⇒ *) ⇒ *)
 C F G = G (F G)
@@ -163,6 +163,7 @@ $\lambda$-calculus (STLC), where |Tms| is a list of |Tm|. Similarly, we hope
 to prove that the normalized model |(Con, Nfs, Ty, Nf)| is also a model of STLC, where
 |Nfs| is a list of |Nf|.
 
+\newpage
 \bibliographystyle{plain}
 \bibliography{references}
 
