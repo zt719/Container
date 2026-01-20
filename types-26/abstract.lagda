@@ -112,45 +112,53 @@ simply typed $\lambda$-calculus\cite{keller2010normalization}. With this setting
 it is easy to see that |Set ≅ HCont *|, |Cont ≅ HCont (* ⇒ *)| and
 |Cont² ≅ HCont ((* ⇒ *) ⇒ * ⇒ *)|. 
 
-For the semantics, it seems there are two ways to go: A naive interpretation
-using what we have called a hereditary functor, built iteratively on sets, and
-a more principled semantics restricting the domain in each iteration to containers.
-The naive interpretation is specified by:
+We can interpret every higher container as a function on types, |⟦_⟧ :
+HCont A → ⟦ A ⟧T| where |⟦_⟧T  : Ty → Set₁| is the obvious
+interpretation of types (with |⟦ * ⟧T = Set|). We believe that this can
+be extended to heredetary functors.
+% We believe that this can
+% be extended to heredetary functors. 
+% \begin{code}
+% record Cat (Obj : Set) : Set where
+% record Func (C : Cat X) (D : Cat Y) (F : X → Y) : Set
+% ⟦_⟧F : (A : Ty) → ⟦ A ⟧T → Set
+% ⟦_⟧C : (A : Ty) → Cat (Σ ⟦ A ⟧T ⟦ A ⟧F)
 
-\begin{code}
-record Cat (Obj : Set) : Set where
-record Func (C : Cat X) (D : Cat Y) (F : X → Y) : Set
-⟦_⟧F : (A : Ty) → ⟦ A ⟧T → Set
-⟦_⟧C : (A : Ty) → Cat (Σ ⟦ A ⟧T ⟦ A ⟧F)
-
-⟦ * ⟧F X = Lift ⊤
-⟦ A ⇒ B ⟧F H =
-  Σ[ HH ∈ ((F : ⟦ A ⟧T) → ⟦ A ⟧F F → ⟦ B ⟧F (H F)) ]
-  Func ⟦ A ⟧C ⟦ B ⟧C (λ (F , FF) → H F , HH F FF)
-\end{code}
-
-where |⟦_⟧T : Ty → Set| and |⟦_⟧C : Con → Set| are the interpretation
-of types and contexts in the intended model. However, using this semantics
-we can shot that there is no third order fixed-point operators, |W³|.
+% ⟦ * ⟧F X = Lift ⊤
+% ⟦ A ⇒ B ⟧F H =
+%   Σ[ HH ∈ ((F : ⟦ A ⟧T) → ⟦ A ⟧F F → ⟦ B ⟧F (H F)) ]
+%   Func ⟦ A ⟧C ⟦ B ⟧C (λ (F , FF) → H F , HH F FF)
+% \end{code}
+% where |⟦_⟧T : Ty → Set| and |⟦_⟧C : Con → Set| are the interpretation
+% of types and contexts in the intended model.
+However, using this semantics
+we can show that there is no third order fixed-point operators, |W³|.
 Consider the following higher order container
 \footnote{This is the corresponding |λ|-term, the actual encoding is not very readable.}:
 \begin{code}
 C : HCont (((* ⇒ *) ⇒ *) ⇒ (* ⇒ *) ⇒ *)
 C F G = G (F G)
 \end{code}
-
 If an external fixpoint operator |W³ : HCont (((* ⇒ *) ⇒ *) ⇒ (* ⇒ *) ⇒ *) → HCont ((* ⇒ *) ⇒ *)|
 exists, applying it to |C| leads to an internal fixpoint operator |intW : HCont ((* ⇒ *) ⇒ *)|.
-According to the semantics, |intW : (Set ⇒ Set) ⇒ Set| gives a least fixpoint of any functor, but we know such thing does not
+According to the semantics, |intW : (Set ⇒ Set) ⇒ Set| gives a
+fixpoint of any function n on types, but we know such thing does not
 exist.
 
-One approach to fixing this problem, is to add fixpoint operators (|μ and ν|) to our syntax and define
-an alternative semantics. The alternative we have in mind interprets higher containers |HCont (A ⇒ B)| as functors |HCont A ⇒ HCont B|. Applying the external fixpoint |W³| to |C| now gives rise to external
-|extW : HCont ((* ⇒ *) ⇒ *)|, which its semantics corresponds to exactly the usual fixed-point operator |W : Cont ⇒ Set|.
+We would like to incorporate initial algebras and terminal coalgebras
+at any type either by adding explicit fixpoint operators or by
+allowing infinite terms (i.e. using a coinductively defined syntax)
+In either case we will have to give up the naive semantics sketched
+above. 
 
-Instead of adding the fixed point operators to the syntax explicitly, we could also add fixed-points
-implicitly by passing to a coinductive syntax with infinite terms. The semantics would then
-have to choose wether to interpret these as inductive or coinductive fixed points.
+% for any type, which means that we 
+% One approach to fixing this problem, is to add fixpoint operators (|μ and ν|) to our syntax and define
+% an alternative semantics. The alternative we have in mind interprets higher containers |HCont (A ⇒ B)| as functors |HCont A ⇒ HCont B|. Applying the external fixpoint |W³| to |C| now gives rise to external
+% |extW : HCont ((* ⇒ *) ⇒ *)|, which its semantics corresponds to exactly the usual fixed-point operator |W : Cont ⇒ Set|.
+
+% Instead of adding the fixed point operators to the syntax explicitly, we could also add fixed-points
+% implicitly by passing to a coinductive syntax with infinite terms. The semantics would then
+% have to choose wether to interpret these as inductive or coinductive fixed points.
 
 \section*{Higher containers as normalized $\lambda$-terms}
 
@@ -163,7 +171,7 @@ $\lambda$-calculus (STLC), where |Tms| is a list of |Tm|. Similarly, we hope
 to prove that the normalized model |(Con, Nfs, Ty, Nf)| is also a model of STLC, where
 |Nfs| is a list of |Nf|.
 
-\newpage
+%\newpage
 \bibliographystyle{plain}
 \bibliography{references}
 

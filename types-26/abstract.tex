@@ -434,7 +434,7 @@ recursively (\ensuremath{\Conid{RF}\;\Varid{true}\;\Varid{tt}\;\mathrel{=}\;\Con
 We define a second-order least-fixpoint operator \ensuremath{\Conid{W}^{2}\;\mathbin{:}\;\Conid{Cont}^{2}\;\rightarrow\;\Conid{Cont}} by
 induction-recursion, thereby recovering \ensuremath{\Conid{Bush}} as the initial algebra of
 \ensuremath{\Conid{H}}. However, attempts to define a greatest fixpoint operator
-\ensuremath{\Conid{M}^{2}\;\mathbin{:}\;\Conid{Cont}^{2}\;\rightarrow\;\Conid{Cont}} by coinduction-induction shows a positivity issue.
+\ensuremath{\Conid{M}^{2}\;\mathbin{:}\;\Conid{Cont}^{2}\;\rightarrow\;\Conid{Cont}} by coinduction-induction show a positivity issue.
 
 \section*{Higher-Order Containers}
 
@@ -451,38 +451,26 @@ simply typed $\lambda$-calculus\cite{keller2010normalization}. With this setting
 it is easy to see that \ensuremath{\Conid{Set}\;\cong\;\Conid{HCont}\;\Varid{*}}, \ensuremath{\Conid{Cont}\;\cong\;\Conid{HCont}\;(\Varid{*}\;\Rightarrow\;\Varid{*})} and
 \ensuremath{\Conid{Cont}^{2}\;\cong\;\Conid{HCont}\;((\Varid{*}\;\Rightarrow\;\Varid{*})\;\Rightarrow\;\Varid{*}\;\Rightarrow\;\Varid{*})}. 
 
-For the semantics, it seems there are two ways to go: A naive interpretation
-using what we have called a hereditary functor, built iteratively on sets, and
-a more principled semantics restricting the domain in each iteration to containers.
-The naive interpretation is specified by:
+We can interpret every higher container as a function on types, \ensuremath{\llbracket\_\rrbracket\;\mathbin{:}\;\Conid{HCont}\;\Conid{A}\;\rightarrow\;\llbracket\;\Conid{A}\;\rrbracket_{\mathrm{T}}} where \ensuremath{\llbracket\_\rrbracket_{\mathrm{T}}\;\mathbin{:}\;\Conid{Ty}\;\rightarrow\;\mathbf{Set}_1} is the obvious
+interpretation of types (with \ensuremath{\llbracket\;\Varid{*}\;\rrbracket_{\mathrm{T}}\;\mathrel{=}\;\Conid{Set}}). We believe that this can
+be extended to heredetary functors.
+% We believe that this can
+% be extended to heredetary functors. 
+% \begin{code}
+% record Cat (Obj : Set) : Set where
+% record Func (C : Cat X) (D : Cat Y) (F : X → Y) : Set
+% ⟦_⟧F : (A : Ty) → ⟦ A ⟧T → Set
+% ⟦_⟧C : (A : Ty) → Cat (Σ ⟦ A ⟧T ⟦ A ⟧F)
 
-\begin{hscode}\SaveRestoreHook
-\column{B}{@{}>{\hspre}l<{\hspost}@{}}%
-\column{3}{@{}>{\hspre}l<{\hspost}@{}}%
-\column{E}{@{}>{\hspre}l<{\hspost}@{}}%
-\>[B]{}\Keyword{record}\;\Conid{Cat}\;(\Conid{Obj}\;\mathbin{:}\;\Conid{Set})\;\mathbin{:}\;\Conid{Set}\;\Keyword{where}{}\<[E]%
-\\
-\>[B]{}\Keyword{record}\;\Conid{Func}\;(\Conid{C}\;\mathbin{:}\;\Conid{Cat}\;\Conid{X})\;(\Conid{D}\;\mathbin{:}\;\Conid{Cat}\;\Conid{Y})\;(\Conid{F}\;\mathbin{:}\;\Conid{X}\;\rightarrow\;\Conid{Y})\;\mathbin{:}\;\Conid{Set}{}\<[E]%
-\\
-\>[B]{}\llbracket\_\rrbracket_{\mathrm{F}}\;\mathbin{:}\;(\Conid{A}\;\mathbin{:}\;\Conid{Ty})\;\rightarrow\;\llbracket\;\Conid{A}\;\rrbracket_{\mathrm{T}}\;\rightarrow\;\Conid{Set}{}\<[E]%
-\\
-\>[B]{}\llbracket\_\rrbracket_{\mathrm{C}}\;\mathbin{:}\;(\Conid{A}\;\mathbin{:}\;\Conid{Ty})\;\rightarrow\;\Conid{Cat}\;(\Sigma\;\llbracket\;\Conid{A}\;\rrbracket_{\mathrm{T}}\;\llbracket\;\Conid{A}\;\rrbracket_{\mathrm{F}}){}\<[E]%
-\\[\blanklineskip]%
-\>[B]{}\llbracket\;\Varid{*}\;\rrbracket_{\mathrm{F}}\;\Conid{X}\;\mathrel{=}\;\Conid{Lift}\;\top{}\<[E]%
-\\
-\>[B]{}\llbracket\;\Conid{A}\;\Rightarrow\;\Conid{B}\;\rrbracket_{\mathrm{F}}\;\Conid{H}\;\mathrel{=}\;{}\<[E]%
-\\
-\>[B]{}\hsindent{3}{}\<[3]%
-\>[3]{}{\Sigma}[\;\Conid{HH}\;\in\;((\Conid{F}\;\mathbin{:}\;\llbracket\;\Conid{A}\;\rrbracket_{\mathrm{T}})\;\rightarrow\;\llbracket\;\Conid{A}\;\rrbracket_{\mathrm{F}}\;\Conid{F}\;\rightarrow\;\llbracket\;\Conid{B}\;\rrbracket_{\mathrm{F}}\;(\Conid{H}\;\Conid{F}))\;\mskip1.5mu]\;{}\<[E]%
-\\
-\>[B]{}\hsindent{3}{}\<[3]%
-\>[3]{}\Conid{Func}\;\llbracket\;\Conid{A}\;\rrbracket_{\mathrm{C}}\;\llbracket\;\Conid{B}\;\rrbracket_{\mathrm{C}}\;(\lambda\;(\Conid{F}\;\Varid{,}\;\Conid{FF})\;\rightarrow\;\Conid{H}\;\Conid{F}\;\Varid{,}\;\Conid{HH}\;\Conid{F}\;\Conid{FF}){}\<[E]%
-\ColumnHook
-\end{hscode}\resethooks
-
-where \ensuremath{\llbracket\_\rrbracket_{\mathrm{T}}\;\mathbin{:}\;\Conid{Ty}\;\rightarrow\;\Conid{Set}} and \ensuremath{\llbracket\_\rrbracket_{\mathrm{C}}\;\mathbin{:}\;\Conid{Con}\;\rightarrow\;\Conid{Set}} are the interpretation
-of types and contexts in the intended model. However, using this semantics
-we can shot that there is no third order fixed-point operators, \ensuremath{\Conid{W}^{3}}.
+% ⟦ * ⟧F X = Lift ⊤
+% ⟦ A ⇒ B ⟧F H =
+%   Σ[ HH ∈ ((F : ⟦ A ⟧T) → ⟦ A ⟧F F → ⟦ B ⟧F (H F)) ]
+%   Func ⟦ A ⟧C ⟦ B ⟧C (λ (F , FF) → H F , HH F FF)
+% \end{code}
+% where |⟦_⟧T : Ty → Set| and |⟦_⟧C : Con → Set| are the interpretation
+% of types and contexts in the intended model.
+However, using this semantics
+we can show that there is no third order fixed-point operators, \ensuremath{\Conid{W}^{3}}.
 Consider the following higher order container
 \footnote{This is the corresponding \ensuremath{\lambda}-term, the actual encoding is not very readable.}:
 \begin{hscode}\SaveRestoreHook
@@ -493,19 +481,26 @@ Consider the following higher order container
 \>[B]{}\Conid{C}\;\Conid{F}\;\Conid{G}\;\mathrel{=}\;\Conid{G}\;(\Conid{F}\;\Conid{G}){}\<[E]%
 \ColumnHook
 \end{hscode}\resethooks
-
 If an external fixpoint operator \ensuremath{\Conid{W}^{3}\;\mathbin{:}\;\Conid{HCont}\;(((\Varid{*}\;\Rightarrow\;\Varid{*})\;\Rightarrow\;\Varid{*})\;\Rightarrow\;(\Varid{*}\;\Rightarrow\;\Varid{*})\;\Rightarrow\;\Varid{*})\;\rightarrow\;\Conid{HCont}\;((\Varid{*}\;\Rightarrow\;\Varid{*})\;\Rightarrow\;\Varid{*})}
 exists, applying it to \ensuremath{\Conid{C}} leads to an internal fixpoint operator \ensuremath{\Varid{intW}\;\mathbin{:}\;\Conid{HCont}\;((\Varid{*}\;\Rightarrow\;\Varid{*})\;\Rightarrow\;\Varid{*})}.
-According to the semantics, \ensuremath{\Varid{intW}\;\mathbin{:}\;(\Conid{Set}\;\Rightarrow\;\Conid{Set})\;\Rightarrow\;\Conid{Set}} gives a least fixpoint of any functor, but we know such thing does not
+According to the semantics, \ensuremath{\Varid{intW}\;\mathbin{:}\;(\Conid{Set}\;\Rightarrow\;\Conid{Set})\;\Rightarrow\;\Conid{Set}} gives a
+fixpoint of any function n on types, but we know such thing does not
 exist.
 
-One approach to fixing this problem, is to add fixpoint operators (\ensuremath{\mu\;\Varid{and}\;\nu}) to our syntax and define
-an alternative semantics. The alternative we have in mind interprets higher containers \ensuremath{\Conid{HCont}\;(\Conid{A}\;\Rightarrow\;\Conid{B})} as functors \ensuremath{\Conid{HCont}\;\Conid{A}\;\Rightarrow\;\Conid{HCont}\;\Conid{B}}. Applying the external fixpoint \ensuremath{\Conid{W}^{3}} to \ensuremath{\Conid{C}} now gives rise to external
-\ensuremath{\Varid{extW}\;\mathbin{:}\;\Conid{HCont}\;((\Varid{*}\;\Rightarrow\;\Varid{*})\;\Rightarrow\;\Varid{*})}, which its semantics corresponds to exactly the usual fixed-point operator \ensuremath{\Conid{W}\;\mathbin{:}\;\Conid{Cont}\;\Rightarrow\;\Conid{Set}}.
+We would like to incorporate initial algebras and terminal coalgebras
+at any type either by adding explicit fixpoint operators or by
+allowing infinite terms (i.e. using a coinductively defined syntax)
+In either case we will have to give up the naive semantics sketched
+above. 
 
-Instead of adding the fixed point operators to the syntax explicitly, we could also add fixed-points
-implicitly by passing to a coinductive syntax with infinite terms. The semantics would then
-have to choose wether to interpret these as inductive or coinductive fixed points.
+% for any type, which means that we 
+% One approach to fixing this problem, is to add fixpoint operators (|μ and ν|) to our syntax and define
+% an alternative semantics. The alternative we have in mind interprets higher containers |HCont (A ⇒ B)| as functors |HCont A ⇒ HCont B|. Applying the external fixpoint |W³| to |C| now gives rise to external
+% |extW : HCont ((* ⇒ *) ⇒ *)|, which its semantics corresponds to exactly the usual fixed-point operator |W : Cont ⇒ Set|.
+
+% Instead of adding the fixed point operators to the syntax explicitly, we could also add fixed-points
+% implicitly by passing to a coinductive syntax with infinite terms. The semantics would then
+% have to choose wether to interpret these as inductive or coinductive fixed points.
 
 \section*{Higher containers as normalized $\lambda$-terms}
 
@@ -518,7 +513,7 @@ $\lambda$-calculus (STLC), where \ensuremath{\Conid{Tms}} is a list of \ensurema
 to prove that the normalized model \ensuremath{(\Conid{Con,}\;\Conid{Nfs,}\;\Conid{Ty,}\;\Conid{Nf})} is also a model of STLC, where
 \ensuremath{\Conid{Nfs}} is a list of \ensuremath{\Conid{Nf}}.
 
-\newpage
+%\newpage
 \bibliographystyle{plain}
 \bibliography{references}
 
